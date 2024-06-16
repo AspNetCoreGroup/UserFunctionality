@@ -43,3 +43,9 @@ body{
 .logo{
     width: 100%;
 }
+
+.additional__info{
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+}

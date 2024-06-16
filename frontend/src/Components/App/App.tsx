@@ -1,8 +1,9 @@
 import './App.css';
 import Navigation from "../Navigation/Navigation";
-import { useAppDispatch, useAppSelector } from '../..';
+import { useAppSelector } from '../..';
 import Content from '../Content/Content';
-import { routeActions } from '../../Redux/route/routeActions';
+import Registration from '../Registration/Registration';
+import Authentificate from '../Authentificate/Authentificate';
 
 const logo = require('../../Images/logo.png')
 
@@ -24,8 +25,8 @@ const App = () => {
             </div>
 
             <div className="right__column">
-                <div className="tab__name">
-                    какая-то инфа по работе счетчиков
+                <div className="additional__info">
+                    <Authentificate />
                 </div>
                 
                 <Content currRoute={selectedRoute} />
