@@ -1,0 +1,7 @@
+.welcome {
+    display: flex;
+    justify-content: flex-end;
+    color: #53B9EA;
+    font-size: large;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}

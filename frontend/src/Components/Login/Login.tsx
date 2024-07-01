@@ -2,8 +2,13 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import { useState } from 'react'
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import Registration from "../Registration/Registration";
+import { User, UserManager } from "oidc-client-ts";
 
-const Login = () => {
+interface LoginProps {
+    userManager: UserManager
+}
+
+const Login = (props: LoginProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLogin, setIsLogin] = useState(true);
 
@@ -79,7 +84,7 @@ const Login = () => {
     )
     } else {
         return (
-            <Registration initIsOpen={true}/>
+            <Registration initIsOpen={true} userManager={props.userManager}/>
         )
     }
 }

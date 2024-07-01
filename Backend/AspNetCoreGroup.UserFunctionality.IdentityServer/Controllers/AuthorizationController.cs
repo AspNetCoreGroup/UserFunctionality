@@ -5,6 +5,10 @@ using AspNetCoreGroup.UserFunctionality.IdentityServer.Models;
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AspNetCoreGroup.UserFunctionality.IdentityServer;
 
@@ -40,20 +44,20 @@ public class AuthorizationController : Controller
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
 
         if (user == null)
-            return BadRequest($"No user with id {id} was found");
+            return BadRequest();
 
         return Ok(user);
     }
 
     [HttpPost("/api/users/Register")]
-    public async Task<IActionResult> RegisterAsync(RegisterModel model)
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
     {
         if (ModelState.IsValid)
         {
             if (string.IsNullOrEmpty(model.Email))
-                return BadRequest($"Email was not provided");
+                return BadRequest(model);
             else if (await _userManager.Users.AnyAsync(u => u.Email.Equals(model.Email)))
-                return BadRequest($"User with email {model.Email} already exists");
+                return BadRequest(model);
 
             var userDTO = _mapper.Map<UserDTO>(model);
 
@@ -65,28 +69,24 @@ public class AuthorizationController : Controller
                 var tgClaim = new Claim("TG", model.Telegramm);
                 var emailClaim = new Claim("Email", model.Email);
 
+                var claims = new[] { adminClaim, tgClaim, emailClaim };
+
                 await _userManager.AddClaimsAsync(
                     userDTO,
-                    new[] { adminClaim, tgClaim, emailClaim }
+                    claims
                     );
 
-                await _signInManager.SignInAsync(userDTO, false);
-                try
-                {
-                    return Ok($"Successfully registered: {res}");
-                }
-                catch
-                {
-                    return Ok($"Successfully registered: {res}");
-                }
+                await _signInManager.SignInAsync(userDTO, true);
+                
+                return Ok(userDTO);
             }
             else
             {
-                return BadRequest($"Errors have ocurred: {string.Join("; ", res.Errors.Select(e => e.Description))}");
+                return BadRequest(model);
             }
         }
         
-        return BadRequest("Bad model");
+        return BadRequest(model);
     }
 
     [HttpPatch("/api/users/Login")]
@@ -94,20 +94,20 @@ public class AuthorizationController : Controller
     {
         if (ModelState.IsValid)
         {
-            var dto = _mapper.Map<UserDTO>(model);
+            var dto = await _userManager.Users.FirstOrDefaultAsync(u => u.Email.Equals(model.Email));
             var res = await _signInManager.PasswordSignInAsync(dto, model.Password, model.RememberMe, false);
             
             if (res.Succeeded)
             {
-                return Ok($"Login successful {model.Email}: {res}");
+                return Ok(dto);
             }
             else
             {
-                return BadRequest($"An error has been ocurred. result: {res}");
+                return BadRequest(dto);
             }
         }
         
-        return BadRequest("Bad model");
+        return BadRequest(model);
     }
 
     [HttpPatch("/api/users/Logout")]
@@ -117,13 +117,13 @@ public class AuthorizationController : Controller
 
         if (user == null)
         {
-            return BadRequest($"No user with email {email}");
+            return BadRequest();
         }
         else
         {
             await _signInManager.SignOutAsync();
 
-            return Ok($"Signed out user {email}");
+            return Ok();
         }
     }
 
@@ -134,18 +134,38 @@ public class AuthorizationController : Controller
 
         if (user == null)
         {
-            return BadRequest($"No user with email {email}");
+            return BadRequest();
         }
 
         var res = await _userManager.DeleteAsync(user);
 
         if (res.Succeeded)
         {
-            return Ok($"Successfully deleted user {email}");
+            return Ok();
         }
         else
         {
-            return Problem($"Cant delete user {email}");
+            return Problem();
+        }
+    }
+
+    [HttpPost("api/users/DropDB")]
+    public async Task<IActionResult> DropAsync()
+    {
+        bool? isSuccess = true;
+        foreach (var user in _userManager.Users)
+        {
+            var res = await _userManager.DeleteAsync(user);
+            isSuccess &= res?.Succeeded;
+        }
+
+        if (isSuccess.Value)
+        {
+            return Ok();
+        }
+        else
+        {
+            return Problem();
         }
     }
 
@@ -165,7 +185,7 @@ public class AuthorizationController : Controller
         if (user != null)
             return Ok(await _userManager.GetClaimsAsync(user));
         else
-            return (BadRequest($"No user found with email {email}"));
+            return BadRequest();
     }
 
     [HttpGet("api/users/IsSignedIn")]

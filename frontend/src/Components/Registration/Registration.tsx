@@ -1,12 +1,30 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, TextField } from "@mui/material"
 import { useState } from 'react'
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+import { useAppDispatch, useAppSelector } from "../..";
+import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
+import { LoginState } from "../../Redux/loginUser/loginUserReducer";
+import { useAuth } from "react-oidc-context";
+import { UserManager } from "oidc-client-ts";
 
 type RegistrationProps = {
     initIsOpen: boolean;
+    userManager: UserManager
 }
 
 const Registration = (props: RegistrationProps) => {
+    const dispatch = useAppDispatch();
+    let state: LoginState = useAppSelector(state => state.plotType);
+
+    const login = (username: string) => {
+        dispatch({ 
+            type: loginUserActions.LOGIN,
+            payload: { 
+                username: username
+            } 
+        });
+    }
+
     const [isOpen, setIsOpen] = useState(props.initIsOpen);
 
     const handleClickOpen = (): void => {
@@ -18,14 +36,38 @@ const Registration = (props: RegistrationProps) => {
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+        const identityServerUri = process.env.REACT_APP_IDENTITY_SERVER_URI;
+
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
-        const email = formJson.email;
-        const password = formJson.password;
-        const telegramm = formJson.telegramm
-        console.log(email, password, telegramm);
-        handleClose();
+
+        const body = {
+            userName: formJson.username,
+            email: formJson.email,
+            password: formJson.password,
+            telegramm: formJson.telegramm,
+            isAdmin: formJson.isadmin == 'On'
+        };
+        console.log(body);
+
+        fetch(`http://${identityServerUri}/api/users/Register`,{
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => response.json())
+        .then((json) => {
+            login(json.userName);
+            console.log(json);
+            props.userManager.signinRedirect();
+            handleClose();
+        })
+        .catch(() => console.log("Error"));
+
     }
 
     return (
@@ -42,42 +84,60 @@ const Registration = (props: RegistrationProps) => {
               }}
         >
             <DialogTitle>Регистрация</DialogTitle>
-            <DialogContent>
-            <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="email"
-                name="email"
-                label="Email"
-                type="email"
-                fullWidth
-                variant="standard"
-            />
-            <TextField
-                required
-                margin="dense"
-                id="password"
-                name="password"
-                label="Пароль"
-                type="password"
-                fullWidth
-                variant="standard"
-            />
-            <TextField
-                margin="dense"
-                id="telegramm"
-                name="telegramm"
-                label="Telegramm"
-                type="text"
-                fullWidth
-                variant="standard"
-            />
-            </DialogContent>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        required
+                        margin="dense"
+                        id="username"
+                        name="username"
+                        label="Имя пользователя"
+                        type="name"
+                        fullWidth
+                        variant="standard"
+                    />
+                    <TextField
+                        autoFocus
+                        required
+                        margin="dense"
+                        id="email"
+                        name="email"
+                        label="Email"
+                        type="email"
+                        fullWidth
+                        variant="standard"
+                    />
+                    <TextField
+                        required
+                        margin="dense"
+                        id="password"
+                        name="password"
+                        label="Пароль"
+                        type="password"
+                        fullWidth
+                        variant="standard"
+                    />
+                    <TextField
+                        margin="dense"
+                        id="telegramm"
+                        name="telegramm"
+                        label="Telegramm"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                    />
+                    <FormControlLabel 
+                        required
+                        control={<Checkbox />}
+                        label="Регистрация как администратор"
+                        id="isadmin"
+                        name="isadmin"
+                    />
+                </DialogContent>
 
-            <DialogActions>
-            <Button onClick={handleClose}>Отмена</Button>
-            <Button type="submit">Зарегистрироваться</Button>
+                <DialogActions>
+                <Button onClick={handleClose}>Отмена</Button>
+                <Button type="submit">Зарегистрироваться</Button>
             </DialogActions>
         </Dialog>
         </>
