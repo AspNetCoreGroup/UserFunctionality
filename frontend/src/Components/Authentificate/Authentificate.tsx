@@ -1,15 +1,10 @@
-import { UserManager } from "oidc-client-ts";
 import Login from "../Login/Login";
 
-interface AuthentificateProps {
-    userManager: UserManager
-}
-
-const Authentificate = (props: AuthentificateProps) => {
+const Authentificate = () => {
 
     return (
         <>
-        <Login userManager={props.userManager}/>
+        <Login />
         </>
     )
 }

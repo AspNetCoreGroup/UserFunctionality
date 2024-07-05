@@ -4,12 +4,9 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useAppDispatch, useAppSelector } from "../..";
 import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
 import { LoginState } from "../../Redux/loginUser/loginUserReducer";
-import { useAuth } from "react-oidc-context";
-import { UserManager } from "oidc-client-ts";
 
 type RegistrationProps = {
     initIsOpen: boolean;
-    userManager: UserManager
 }
 
 const Registration = (props: RegistrationProps) => {
@@ -36,7 +33,7 @@ const Registration = (props: RegistrationProps) => {
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-        const identityServerUri = process.env.REACT_APP_IDENTITY_SERVER_URI;
+        const identityServerUri = `${process.env.REACT_APP_IDENTITY_SERVER_URI}`;
 
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -51,19 +48,22 @@ const Registration = (props: RegistrationProps) => {
         };
         console.log(body);
 
-        fetch(`http://${identityServerUri}/api/users/Register`,{
+        fetch(`${identityServerUri}/api/users/Register`,{
             method: 'POST',
             cache: 'no-cache',
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
+            credentials: 'include'
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            return response.json();
+        })
         .then((json) => {
+            console.log(json.config.headers.Cookie)
             login(json.userName);
-            console.log(json);
-            props.userManager.signinRedirect();
             handleClose();
         })
         .catch(() => console.log("Error"));

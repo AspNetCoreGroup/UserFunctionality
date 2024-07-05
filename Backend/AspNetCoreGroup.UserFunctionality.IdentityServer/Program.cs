@@ -17,21 +17,7 @@ builder.Services.AddControllers();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(MyAllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins(
-                builder.Configuration.GetValue<string>("IdentityServer:ClientUri") ?? "http://127.0.0.1:3000",
-                "http://localhost:5111"
-                )
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
-});
+builder.Services.AddCors();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -63,16 +49,6 @@ builder.Services.Configure<CookieAuthenticationOptions>(IdentityServerConstants.
 
 builder.Services.AddSameSiteCookiePolicy();
 
-
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("Admin", policy =>
-//    {
-//        policy.RequireClaim("Admin", "true");
-//    });
-//});
-
-
 builder.Services
     .AddIdentity<UserDTO, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
@@ -101,9 +77,14 @@ if (app.Environment.IsDevelopment())
 app.UseDeveloperExceptionPage();
 app.UseHttpsRedirection();
 
-app.UseCors(MyAllowSpecificOrigins);
-
-app.UseCookiePolicy();
+app.UseCors(options =>
+{
+    options.WithOrigins(builder.Configuration.GetValue<string>("IdentityServer:ClientUri"))
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+    ;
+});
 
 app.UseIdentityServer();
 app.UseAuthentication();

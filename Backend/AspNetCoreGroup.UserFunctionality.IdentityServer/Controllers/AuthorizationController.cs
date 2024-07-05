@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text;
 
 namespace AspNetCoreGroup.UserFunctionality.IdentityServer;
 
@@ -77,8 +79,12 @@ public class AuthorizationController : Controller
                     );
 
                 await _signInManager.SignInAsync(userDTO, true);
+
+                var token = Token(claims);
+                await _userManager.SetAuthenticationTokenAsync(userDTO, "IS4", userDTO.Email + "_token", token);
+                Response.Cookies.Append("token", token, new CookieOptions { HttpOnly = false });
                 
-                return Ok(userDTO);
+                return Created(userDTO.Email, userDTO);
             }
             else
             {
@@ -192,5 +198,19 @@ public class AuthorizationController : Controller
     public async Task<IActionResult> IsSignedInAsync()
     {
         return Ok(_signInManager.IsSignedIn(HttpContext.User));
+    }
+
+    [HttpPost("api/users/Token")]
+    public string Token(IEnumerable<Claim> claims)
+    {
+        var jwt = new JwtSecurityToken(
+            issuer: "Server",
+            audience: "Client",
+            claims: claims,
+            signingCredentials: new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes("mysupersecret_secretsecretsecretkey!123")),
+                SecurityAlgorithms.HmacSha256)
+            );
+        return new JwtSecurityTokenHandler().WriteToken(jwt);
     }
 }

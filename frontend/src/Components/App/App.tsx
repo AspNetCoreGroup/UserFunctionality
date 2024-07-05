@@ -8,22 +8,9 @@ import { State } from '../../Redux/route/routeReducer';
 import Cookies from 'js-cookie'
 import { useAuth } from 'react-oidc-context';
 import Welcome from '../Welcome/Welcome';
-import { OidcClientSettings } from 'oidc-client-ts';
 
 const logo = require('../../Images/logo.png')
-export const oidcConfig: OidcClientSettings = {
-    authority: "http://localhost:5111", 
-    client_id: "authorization", 
-    response_type: "token_id token",
-    scope: "openid profile authorization", 
-    redirect_uri: "http://localhost:3000"
-  };
-
 const App = () => {
-    
-    const userManager = new Oidc.UserManager(oidcConfig);
-    const user = userManager.getUser().then(u => console.log(u));
-
     let selectedRoute: State = useAppSelector(state => state.route);
     let logedInUsername: LoginState = useAppSelector(state => state.login);
 
@@ -47,7 +34,7 @@ const App = () => {
                     <Welcome username={"aa"} />
                     :
                     <div className="additional__info">
-                        <Authentificate userManager={userManager}/>
+                        <Authentificate />
                     </div>
                 }
                 
