@@ -2,13 +2,13 @@ import './Welcome.css'
 
 
 interface WelcomeProps {
-    username: string | undefined
+    username: String | undefined
 }
 
 const Welcome = (props: WelcomeProps) => {
     return (
         <div className="welcome">
-            Добро пожаловать, {props.username}
+            Logged in as <a href=''>{props.username}</a>
         </div>
     )
 }

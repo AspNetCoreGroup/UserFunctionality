@@ -5,14 +5,32 @@ import Content from '../Content/Content';
 import Authentificate from '../Authentificate/Authentificate';
 import { LoginState } from '../../Redux/loginUser/loginUserReducer';
 import { State } from '../../Redux/route/routeReducer';
-import Cookies from 'js-cookie'
-import { useAuth } from 'react-oidc-context';
 import Welcome from '../Welcome/Welcome';
+import { useJwt } from 'react-jwt'
 
 const logo = require('../../Images/logo.png')
-const App = () => {
+
+interface AppProps {
+    isAuthorized: boolean;
+}
+
+interface ClaimsType {
+    TG: string;
+    IsAdmin: boolean;
+    Email: string;
+}
+
+const App = (props: AppProps) => {
     let selectedRoute: State = useAppSelector(state => state.route);
-    let logedInUsername: LoginState = useAppSelector(state => state.login);
+    let loginState: LoginState = useAppSelector(state => state.login);
+    const token = document.cookie.split(';').find(c => c.includes('token'))?.split('=')[1] ?? "";
+
+    let email: String | undefined = '';
+    const claims: ClaimsType | null = useJwt<ClaimsType>(token).decodedToken;
+    
+    if (props.isAuthorized) {
+        email = claims?.Email;
+    }
 
     return (
         <div className="app">
@@ -29,18 +47,16 @@ const App = () => {
             </div>
 
             <div className="right__column">
-                {false
+                {props.isAuthorized
                     ? 
-                    <Welcome username={"aa"} />
+                    <Welcome username={email} />
                     :
                     <div className="additional__info">
                         <Authentificate />
                     </div>
                 }
                 
-                
                 <Content currRoute={selectedRoute} />
-                
             </div>
 
         </div>

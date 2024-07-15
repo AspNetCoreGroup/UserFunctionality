@@ -27,7 +27,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <Provider store={storage}>
       <AuthProvider >
-        <App />
+        <App isAuthorized={!!document.cookie.split(';').find(c => c.includes('token'))}/>
       </AuthProvider>
   </Provider>
 );

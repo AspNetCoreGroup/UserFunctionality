@@ -4,6 +4,7 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useAppDispatch, useAppSelector } from "../..";
 import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
 import { LoginState } from "../../Redux/loginUser/loginUserReducer";
+import { redirect, useNavigate } from "react-router";
 
 type RegistrationProps = {
     initIsOpen: boolean;
@@ -30,6 +31,7 @@ const Registration = (props: RegistrationProps) => {
 
     const handleClose = (): void => {
         setIsOpen(false);
+        window.location.reload();
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
@@ -57,16 +59,12 @@ const Registration = (props: RegistrationProps) => {
             body: JSON.stringify(body),
             credentials: 'include'
         })
-        .then(response => {
-            console.log(response);
-            return response.json();
-        })
+        .then(response => response.json())
         .then((json) => {
-            console.log(json.config.headers.Cookie)
             login(json.userName);
             handleClose();
         })
-        .catch(() => console.log("Error"));
+        .catch((e) => console.log());
 
     }
 
@@ -127,7 +125,6 @@ const Registration = (props: RegistrationProps) => {
                         variant="standard"
                     />
                     <FormControlLabel 
-                        required
                         control={<Checkbox />}
                         label="Регистрация как администратор"
                         id="isadmin"

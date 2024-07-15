@@ -82,9 +82,19 @@ public class AuthorizationController : Controller
 
                 var token = Token(claims);
                 await _userManager.SetAuthenticationTokenAsync(userDTO, "IS4", userDTO.Email + "_token", token);
-                Response.Cookies.Append("token", token, new CookieOptions { HttpOnly = false });
+                Response.Cookies.Append(
+                    "token",
+                    token,
+                    new CookieOptions 
+                    { 
+                        HttpOnly = false,
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.Now.AddYears(1),
+                        Secure = true,
+                        IsEssential = true
+                    });
                 
-                return Created(userDTO.Email, userDTO);
+                return Created();
             }
             else
             {
@@ -207,6 +217,7 @@ public class AuthorizationController : Controller
             issuer: "Server",
             audience: "Client",
             claims: claims,
+            expires: DateTime.Now.AddYears(100),
             signingCredentials: new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes("mysupersecret_secretsecretsecretkey!123")),
                 SecurityAlgorithms.HmacSha256)
