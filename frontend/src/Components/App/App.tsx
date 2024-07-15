@@ -7,11 +7,13 @@ import { LoginState } from '../../Redux/loginUser/loginUserReducer';
 import { State } from '../../Redux/route/routeReducer';
 import Welcome from '../Welcome/Welcome';
 import { useJwt } from 'react-jwt'
+import Logout from '../Logout/Logout';
 
 const logo = require('../../Images/logo.png')
 
 interface AppProps {
     isAuthorized: boolean;
+    email: string
 }
 
 interface ClaimsType {
@@ -47,14 +49,19 @@ const App = (props: AppProps) => {
             </div>
 
             <div className="right__column">
+            <div className="additional__info">
                 {props.isAuthorized
                     ? 
-                    <Welcome username={email} />
+                    <div className="authorized">
+                        <Welcome username={email} />
+                        <Logout Email={email}/>
+                    </div>
                     :
-                    <div className="additional__info">
+                    <div className="login">
                         <Authentificate />
                     </div>
                 }
+            </div>
                 
                 <Content currRoute={selectedRoute} />
             </div>

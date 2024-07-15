@@ -127,7 +127,7 @@ public class AuthorizationController : Controller
     }
 
     [HttpPatch("/api/users/Logout")]
-    public async Task<IActionResult> LogoutAsync([DataType(DataType.EmailAddress), Required] string? email)
+    public async Task<IActionResult> LogoutAsync([DataType(DataType.EmailAddress), Required, FromQuery] string? email)
     {
         var user = _userManager.Users.FirstOrDefault(u => u.Email.Equals(email));
 

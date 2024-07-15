@@ -1,10 +1,9 @@
 import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, TextField } from "@mui/material"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useAppDispatch, useAppSelector } from "../..";
 import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
 import { LoginState } from "../../Redux/loginUser/loginUserReducer";
-import { redirect, useNavigate } from "react-router";
 
 type RegistrationProps = {
     initIsOpen: boolean;
@@ -31,7 +30,6 @@ const Registration = (props: RegistrationProps) => {
 
     const handleClose = (): void => {
         setIsOpen(false);
-        window.location.reload();
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
@@ -48,7 +46,6 @@ const Registration = (props: RegistrationProps) => {
             telegramm: formJson.telegramm,
             isAdmin: formJson.isadmin == 'On'
         };
-        console.log(body);
 
         fetch(`${identityServerUri}/api/users/Register`,{
             method: 'POST',
@@ -62,10 +59,10 @@ const Registration = (props: RegistrationProps) => {
         .then(response => response.json())
         .then((json) => {
             login(json.userName);
-            handleClose();
+            handleClose()
         })
-        .catch((e) => console.log());
-
+        .catch((e) => console.log())
+        .finally(() => window.location.reload());
     }
 
     return (
@@ -79,7 +76,7 @@ const Registration = (props: RegistrationProps) => {
             PaperProps={{
                 component: 'form',
                 onSubmit: handleSubmit,
-              }}
+            }}
         >
             <DialogTitle>Регистрация</DialogTitle>
                 <DialogContent>
