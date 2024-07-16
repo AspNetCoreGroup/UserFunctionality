@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text;
+using System.Collections;
 
 namespace AspNetCoreGroup.UserFunctionality.IdentityServer;
 
@@ -34,12 +35,21 @@ public class AuthorizationController : Controller
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Get all users in DB
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("api/users")]
     public async Task<IActionResult> GetAllAsync()
     {
         return Ok(_dbContext.Users);
     }
 
+    /// <summary>
+    /// Get user corresponding particular id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet("/api/users/{id}")]
     public async Task<IActionResult> GetByIdAsync(string id)
     {
@@ -51,6 +61,33 @@ public class AuthorizationController : Controller
         return Ok(user);
     }
 
+    /// <summary>
+    /// Method which sets JWT token cookie via Set-Cookie header
+    /// </summary>
+    /// <param name="claims">User Claims collection</param>
+    /// <param name="userDTO">User DTO</param>
+    private async Task SetTokenCookieAsync(IEnumerable<Claim> claims, UserDTO userDTO)
+    {
+        var token = Token(claims);
+        await _userManager.SetAuthenticationTokenAsync(userDTO, "IS4", userDTO.Email + "_token", token);
+        Response.Cookies.Append(
+            "token",
+            token,
+            new CookieOptions
+            {
+                HttpOnly = false,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.Now.AddYears(1),
+                Secure = true,
+                IsEssential = true
+            });
+    }
+
+    /// <summary>
+    /// Register new user
+    /// </summary>
+    /// <param name="model">Registration Model</param>
+    /// <returns></returns>
     [HttpPost("/api/users/Register")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
     {
@@ -79,20 +116,7 @@ public class AuthorizationController : Controller
                     );
 
                 await _signInManager.SignInAsync(userDTO, true);
-
-                var token = Token(claims);
-                await _userManager.SetAuthenticationTokenAsync(userDTO, "IS4", userDTO.Email + "_token", token);
-                Response.Cookies.Append(
-                    "token",
-                    token,
-                    new CookieOptions 
-                    { 
-                        HttpOnly = false,
-                        SameSite = SameSiteMode.None,
-                        Expires = DateTime.Now.AddYears(1),
-                        Secure = true,
-                        IsEssential = true
-                    });
+                await SetTokenCookieAsync(claims, userDTO);
                 
                 return Created();
             }
@@ -105,6 +129,11 @@ public class AuthorizationController : Controller
         return BadRequest(model);
     }
 
+    /// <summary>
+    /// Login via email and password. Get JWT
+    /// </summary>
+    /// <param name="model">Login Model</param>
+    /// <returns></returns>
     [HttpPatch("/api/users/Login")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
     {
@@ -112,6 +141,9 @@ public class AuthorizationController : Controller
         {
             var dto = await _userManager.Users.FirstOrDefaultAsync(u => u.Email.Equals(model.Email));
             var res = await _signInManager.PasswordSignInAsync(dto, model.Password, model.RememberMe, false);
+
+            var claims = await _userManager.GetClaimsAsync(dto);
+            await SetTokenCookieAsync(claims, dto);
             
             if (res.Succeeded)
             {
@@ -126,10 +158,16 @@ public class AuthorizationController : Controller
         return BadRequest(model);
     }
 
+    /// <summary>
+    /// Logout from service
+    /// </summary>
+    /// <param name="email">User to face logout</param>
+    /// <returns></returns>
     [HttpPatch("/api/users/Logout")]
     public async Task<IActionResult> LogoutAsync([DataType(DataType.EmailAddress), Required, FromQuery] string? email)
     {
         var user = _userManager.Users.FirstOrDefault(u => u.Email.Equals(email));
+        Response.Cookies.Delete("token");
 
         if (user == null)
         {
@@ -143,6 +181,11 @@ public class AuthorizationController : Controller
         }
     }
 
+    /// <summary>
+    /// Delete the user entity from DB
+    /// </summary>
+    /// <param name="email">Email of user to be deleted</param>
+    /// <returns></returns>
     [HttpPost("api/users/Delete")]
     public async Task<IActionResult> DeleteAsync(string email)
     {
@@ -165,6 +208,10 @@ public class AuthorizationController : Controller
         }
     }
 
+    /// <summary>
+    /// Drop DataBase
+    /// </summary>
+    /// <returns></returns>
     [HttpPost("api/users/DropDB")]
     public async Task<IActionResult> DropAsync()
     {
@@ -185,6 +232,11 @@ public class AuthorizationController : Controller
         }
     }
 
+    /// <summary>
+    /// Check whether user can sign in
+    /// </summary>
+    /// <param name="model">Login Model</param>
+    /// <returns></returns>
     [HttpGet("/api/users/CanSignIn")]
     public async Task<IActionResult> IsAuthorizedAsync(LoginModel model)
     {
@@ -193,6 +245,11 @@ public class AuthorizationController : Controller
         return Ok(await _signInManager.CanSignInAsync(dto));
     }
 
+    /// <summary>
+    /// Get claims of user
+    /// </summary>
+    /// <param name="email">Email of user</param>
+    /// <returns></returns>
     [HttpGet("api/users/Claims")]
     public async Task<IActionResult> ClaimsAsync([DataType(DataType.EmailAddress), Required] string? email)
     {
@@ -204,12 +261,21 @@ public class AuthorizationController : Controller
             return BadRequest();
     }
 
+    /// <summary>
+    /// Check whether the user is signed in
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("api/users/IsSignedIn")]
     public async Task<IActionResult> IsSignedInAsync()
     {
         return Ok(_signInManager.IsSignedIn(HttpContext.User));
     }
 
+    /// <summary>
+    /// Get JWT
+    /// </summary>
+    /// <param name="claims">Claims to be set into JWT</param>
+    /// <returns></returns>
     [HttpPost("api/users/Token")]
     public string Token(IEnumerable<Claim> claims)
     {

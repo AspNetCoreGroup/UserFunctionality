@@ -4,6 +4,7 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useAppDispatch, useAppSelector } from "../..";
 import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
 import { LoginState } from "../../Redux/loginUser/loginUserReducer";
+import { loginFormActions } from "../../Redux/loginForm/loginFormActions";
 
 type RegistrationProps = {
     initIsOpen: boolean;
@@ -11,8 +12,6 @@ type RegistrationProps = {
 
 const Registration = (props: RegistrationProps) => {
     const dispatch = useAppDispatch();
-    let state: LoginState = useAppSelector(state => state.plotType);
-
     const login = (username: string) => {
         dispatch({ 
             type: loginUserActions.LOGIN,
@@ -30,6 +29,9 @@ const Registration = (props: RegistrationProps) => {
 
     const handleClose = (): void => {
         setIsOpen(false);
+        dispatch({
+            type: loginFormActions.SET_LOGIN
+        });
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {

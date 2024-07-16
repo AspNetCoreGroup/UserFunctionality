@@ -6,6 +6,7 @@ import { configureStore } from "@reduxjs/toolkit"
 import routeReducer from './Redux/route/routeReducer';
 import loginUserReducer from './Redux/loginUser/loginUserReducer';
 import { AuthProvider } from 'react-oidc-context';
+import loginFormReducer from './Redux/loginForm/loginFormReducer';
 
 
 export const storage = configureStore(
@@ -13,7 +14,8 @@ export const storage = configureStore(
     reducer: {
       plotType: plotTypeReducer,
       route: routeReducer,
-      login: loginUserReducer
+      login: loginUserReducer,
+      loginForm: loginFormReducer
     }
   }
 );

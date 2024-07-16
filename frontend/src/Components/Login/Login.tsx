@@ -1,11 +1,16 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, TextField } from "@mui/material"
 import { useState } from 'react'
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import Registration from "../Registration/Registration";
+import LoginModel from "../../Models/LoginModel";
+import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
+import { useAppDispatch } from "../..";
+import { loginFormActions } from "../../Redux/loginForm/loginFormActions";
 
 const Login = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isLogin, setIsLogin] = useState(true);
+
+    const identityServerUri = `${process.env.REACT_APP_IDENTITY_SERVER_URI}`;
 
     const handleClickOpen = (): void => {
         setIsOpen(true);
@@ -15,73 +20,99 @@ const Login = () => {
         setIsOpen(false);
     };
 
+    const dispatch = useAppDispatch();
+    const login = (username: string) => {
+        dispatch({ 
+            type: loginUserActions.LOGIN,
+            payload: { 
+                username: username
+            } 
+        });
+    }
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
-        const email = formJson.email;
-        const password = formJson.password;
-        console.log(email, password);
-        handleClose();
+        console.log(formJson);
+        
+        fetch(`${identityServerUri}/api/users/Login`,{
+            method: 'PATCH',
+            cache: 'no-cache',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formJson),
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then((json) => {
+            login(json.userName);
+            handleClose()
+        })
+        .catch((e) => console.log())
+        .finally(() => window.location.reload());
     }
 
     const handleRegisterForm = () => {
         setIsOpen(false);
-        setIsLogin(false);
+        dispatch({
+            type: loginFormActions.SET_REGISTRATION
+        });
     }
 
-    if (isLogin) {
-        return (
-            <>
-            <Button variant="outlined" onClick={handleClickOpen} startIcon={<HowToRegIcon />}>
-                Авторизация
-            </Button>
-            <Dialog
-                open={isOpen}
-                onClose={handleClose}
-                PaperProps={{
-                    component: 'form',
-                    onSubmit: handleSubmit,
-                  }}
-            >
-                <DialogTitle>Авторизоваться</DialogTitle>
-                <DialogContent>
-                <TextField
-                    autoFocus
-                    required
-                    margin="dense"
-                    id="email"
-                    name="email"
-                    label="Email"
-                    type="email"
-                    fullWidth
-                    variant="standard"
-                />
-                <TextField
-                    required
-                    margin="dense"
-                    id="password"
-                    name="password"
-                    label="Пароль"
-                    type="password"
-                    fullWidth
-                    variant="standard"
-                />
-                </DialogContent>
-    
-                <DialogActions>
-                    <Button variant="outlined" onClick={handleClose}>Отмена</Button>
-                    <Button variant="outlined" type="submit">Войти</Button>
-                    <Button variant="outlined" onClick={handleRegisterForm}>Зарегистрироваться</Button>
-                </DialogActions>
-            </Dialog>
-            </>
+    return (
+        <>
+        <Button variant="outlined" onClick={handleClickOpen} startIcon={<HowToRegIcon />}>
+            Авторизация
+        </Button>
+        <Dialog
+            open={isOpen}
+            onClose={handleClose}
+            PaperProps={{
+                component: 'form',
+                onSubmit: handleSubmit,
+                }}
+        >
+            <DialogTitle>Авторизоваться</DialogTitle>
+            <DialogContent>
+            <TextField
+                autoFocus
+                required
+                margin="dense"
+                id="email"
+                name="email"
+                label="Email"
+                type="email"
+                fullWidth
+                variant="standard"
+            />
+            <TextField
+                required
+                margin="dense"
+                id="password"
+                name="password"
+                label="Пароль"
+                type="password"
+                fullWidth
+                variant="standard"
+            />
+            <FormControlLabel 
+                control={<Checkbox />}
+                label="Запомнить меня"
+                id="rememberMe"
+                name="rememberMe"
+            />
+            </DialogContent>
+
+            <DialogActions>
+                <Button variant="outlined" onClick={handleClose}>Отмена</Button>
+                <Button variant="outlined" type="submit">Войти</Button>
+                <Button variant="outlined" onClick={handleRegisterForm}>Зарегистрироваться</Button>
+            </DialogActions>
+        </Dialog>
+        </>
     )
-    } else {
-        return (
-            <Registration initIsOpen={true} />
-        )
-    }
 }
 
 export default Login;
