@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../..";
 import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
 import { LoginState } from "../../Redux/loginUser/loginUserReducer";
 import { loginFormActions } from "../../Redux/loginForm/loginFormActions";
+import RegisterModel from "../../Models/RegisterModel";
 
 type RegistrationProps = {
     initIsOpen: boolean;
@@ -41,7 +42,7 @@ const Registration = (props: RegistrationProps) => {
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
 
-        const body = {
+        const body: RegisterModel = {
             userName: formJson.username,
             email: formJson.email,
             password: formJson.password,

@@ -34,7 +34,7 @@ const Login = () => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
-        console.log(formJson);
+        const body: LoginModel = Object.create(formJson);
         
         fetch(`${identityServerUri}/api/users/Login`,{
             method: 'PATCH',
