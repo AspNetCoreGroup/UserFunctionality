@@ -16,10 +16,12 @@ import SsidChartRoundedIcon from '@mui/icons-material/SsidChartRounded';
 import PlayCircleFilledWhiteRoundedIcon from '@mui/icons-material/PlayCircleFilledWhiteRounded';
 import DisplaySettingsRoundedIcon from '@mui/icons-material/DisplaySettingsRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import { useEffect, useState } from "react";
 import { route } from '../../Redux/route/routeConstants';
 import { useAppDispatch, useAppSelector } from '../..';
 import { routeActions } from '../../Redux/route/routeActions';
+import checkJwtExists from '../../common/JWT/checkJwtExists';
 
 const routes = route;
 
@@ -89,55 +91,77 @@ const CustomTabs = () => {
         changeRoute(location.pathname);
         setTabState(location.pathname);
     }, [location.pathname])
+
+    const tabs = [<Tab 
+        icon={<HomeRoundedIcon color="secondary"/>}
+        iconPosition="start"
+        value={routes.home}
+        sx={{alignSelf:'start'}}
+        label={
+            <NavigationButton color={textColor} label="Домашняя страница"/>
+        }
+        to={routes.home}
+        component={Link}
+    />,
+    <Tab 
+        icon={<PlayCircleFilledWhiteRoundedIcon color="secondary"/>}
+        iconPosition="start"
+        sx={{alignSelf:'start'}}
+        value={routes.launchSimulation}
+        label={
+            <NavigationButton color={textColor} label="Запуск нагрузки"/>
+        }
+        to={routes.launchSimulation}
+        component={Link}
+        />,
+    <Tab 
+        icon={<SsidChartRoundedIcon color="secondary" />}
+        iconPosition="start"
+        sx={{alignSelf:'start'}}
+        value={routes.monitoring}
+        label={
+            <NavigationButton color={textColor} label="Мониторинг"/>
+        } 
+        to={routes.monitoring}
+        component={Link} 
+        />,
+    <Tab 
+        icon={<DisplaySettingsRoundedIcon color="secondary"/>}
+        iconPosition="start"
+        sx={{alignSelf:'start'}}
+        value={routes.states}
+        label={
+            <NavigationButton color={textColor} label="Состояния"/>
+        }
+        to={routes.states}
+        component={Link} 
+        />,
+    ];
+
+    if (checkJwtExists()) {
+        tabs.push(
+            <Tab 
+                icon={<ManageAccountsIcon color="secondary"/>}
+                iconPosition="start"
+                sx={{alignSelf:'start'}}
+                value={routes.userProfile}
+                label={
+                    <NavigationButton color={textColor} label="Профиль"/>
+                }
+                to={routes.userProfile}
+                component={Link} 
+                />
+        );
+    }
   
     return (
         <Tabs 
             orientation="vertical" 
             textColor="secondary"
-            centered
             onChange={(event, value) => { handleTabs(value) }}
             value={tabState}
             >
-            <Tab 
-                icon={<HomeRoundedIcon color="secondary"/>}
-                iconPosition="start"
-                value={routes.home}
-                label={
-                    <NavigationButton color={textColor} label="Домашняя страница"/>
-                }
-                to={routes.home}
-                component={Link}
-            />
-            <Tab 
-                icon={<PlayCircleFilledWhiteRoundedIcon color="secondary"/>}
-                iconPosition="start"
-                value={routes.launchSimulation}
-                label={
-                    <NavigationButton color={textColor} label="Запуск нагрузки"/>
-                }
-                to={routes.launchSimulation}
-                component={Link}
-                />
-            <Tab 
-                icon={<SsidChartRoundedIcon color="secondary" />}
-                iconPosition="start"
-                value={routes.monitoring}
-                label={
-                    <NavigationButton color={textColor} label="Мониторинг"/>
-                } 
-                to={routes.monitoring}
-                component={Link} 
-                />
-            <Tab 
-                icon={<DisplaySettingsRoundedIcon color="secondary"/>}
-                iconPosition="start"
-                value={routes.states}
-                label={
-                    <NavigationButton color={textColor} label="Состояния"/>
-                }
-                to={routes.states}
-                component={Link} 
-                />
+            {tabs}
         </Tabs>
     );
 }

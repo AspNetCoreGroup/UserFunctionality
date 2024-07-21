@@ -8,6 +8,8 @@ import { State } from '../../Redux/route/routeReducer';
 import Welcome from '../Welcome/Welcome';
 import { useJwt } from 'react-jwt'
 import Logout from '../Logout/Logout';
+import Principal from '../../common/JWT/principal';
+import UserProfile from '../UserProfile/UserProfile';
 
 const logo = require('../../Images/logo.png')
 
@@ -16,19 +18,20 @@ interface AppProps {
     email: string
 }
 
-interface ClaimsType {
-    TG: string;
-    IsAdmin: boolean;
-    Email: string;
+export const useDecodedToken = (): Principal | null => {
+    const token = document.cookie.split(';').find(c => c.includes('token'))?.split('=')[1] ?? "";
+    const tokenDecoded = useJwt<Principal>(token).decodedToken;
+
+    return tokenDecoded;
 }
+
 
 const App = (props: AppProps) => {
     let selectedRoute: State = useAppSelector(state => state.route);
     let loginState: LoginState = useAppSelector(state => state.login);
-    const token = document.cookie.split(';').find(c => c.includes('token'))?.split('=')[1] ?? "";
 
     let email: String | undefined = '';
-    const claims: ClaimsType | null = useJwt<ClaimsType>(token).decodedToken;
+    const claims: Principal | null = useDecodedToken();
     
     if (props.isAuthorized) {
         email = claims?.Email;
@@ -53,7 +56,7 @@ const App = (props: AppProps) => {
                 {props.isAuthorized
                     ? 
                     <div className="authorized">
-                        <Welcome username={email} />
+                        <UserProfile />
                         <Logout Email={email}/>
                     </div>
                     :

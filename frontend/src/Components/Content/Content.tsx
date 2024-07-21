@@ -12,6 +12,7 @@ import volkovS from "../../Images/Avatars/volkov_s.jpg";
 import ivanchevY from "../../Images/Avatars/ivanchev_y.jpg";
 import tikhomirovS from "../../Images/Avatars/tikhomirov_s.jpg";
 import gerasimenkoA from "../../Images/Avatars/gerasimenko_a.jpg";
+import UserProfile from "../UserProfile/UserProfile";
 
 interface ContentProps{
     currRoute: State
@@ -104,6 +105,12 @@ const Content = (props: ContentProps) => {
             return (
                 <div className="states"></div>
             );
+        case route.userProfile:
+            return (
+                <div className="user-profile">
+                    <UserProfile />
+                </div>
+            )
         default:
             return (
                 <div className="empty"></div>

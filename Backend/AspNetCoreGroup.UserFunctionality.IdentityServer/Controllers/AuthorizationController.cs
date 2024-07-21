@@ -261,6 +261,38 @@ public class AuthorizationController : Controller
             return BadRequest();
     }
 
+    [HttpPatch("api/users/Claims/Update")]
+    public async Task<IActionResult> UpdateClaimsAsync([FromBody] UpdateClaimsModel model)
+    {
+        var user = _userManager.Users.FirstOrDefault(u => u.Email.Equals(model.Email));
+
+        if (user == null)
+        {
+            return BadRequest(model);
+        }
+
+        var claims = await _userManager.GetClaimsAsync(user);
+        var tgClaim = claims.FirstOrDefault(c => c.Type.Equals(Claims.TG.ToString()));
+
+        if (tgClaim.Value.Equals(model.Telegramm))
+        {
+            return Ok();
+        }
+
+        user.Telegramm = model.Telegramm;
+
+        await _userManager.UpdateAsync(user);
+        await _userManager.ReplaceClaimAsync(
+            user,
+            tgClaim,
+            new Claim(Claims.TG.ToString(), model.Telegramm)
+            );
+        await SetTokenCookieAsync(claims, user);
+
+
+        return Ok();
+    }
+
     /// <summary>
     /// Check whether the user is signed in
     /// </summary>

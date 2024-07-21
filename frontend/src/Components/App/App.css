@@ -52,10 +52,7 @@ body{
 }
 
 .authorized {
-    display: grid;
-    grid-template-rows: auto auto;
-    margin-right: 1%;
-    align-self: start;
+    display: flex;
 }
 
 .login {

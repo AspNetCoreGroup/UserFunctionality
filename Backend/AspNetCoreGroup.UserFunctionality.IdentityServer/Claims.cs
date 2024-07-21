@@ -3,5 +3,5 @@
 public enum Claims
 {
     IsAdmin,
-    Telegramm
+    TG
 }

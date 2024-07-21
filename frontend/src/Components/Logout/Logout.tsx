@@ -1,7 +1,6 @@
 import { Button } from '@mui/material';
 import './Logout.css'
 import { useAppDispatch } from '../..';
-import { loginUserActions } from '../../Redux/loginUser/loginUserActions';
 
 interface LogoutType {
     Email: String | undefined
@@ -40,7 +39,7 @@ const Logout = (props: LogoutType) => {
 
     return (
         <div className="logout__button">
-            <Button variant="contained" onClick={e => {handleLogout(props.Email)}}>Logout</Button>
+            <Button variant="outlined" onClick={e => {handleLogout(props.Email)}}>Выйти</Button>
         </div>
     )
 }

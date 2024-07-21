@@ -7,6 +7,7 @@ import routeReducer from './Redux/route/routeReducer';
 import loginUserReducer from './Redux/loginUser/loginUserReducer';
 import { AuthProvider } from 'react-oidc-context';
 import loginFormReducer from './Redux/loginForm/loginFormReducer';
+import checkJwtExists from './common/JWT/checkJwtExists';
 
 
 export const storage = configureStore(
@@ -29,7 +30,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <Provider store={storage}>
       <AuthProvider >
-        <App isAuthorized={!!document.cookie.split(';').find(c => c.includes('token'))} email={state.login}/>
+        <App isAuthorized={checkJwtExists()} email={state.login}/>
       </AuthProvider>
   </Provider>
 );
