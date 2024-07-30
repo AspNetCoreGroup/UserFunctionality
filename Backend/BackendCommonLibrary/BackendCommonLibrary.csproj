@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Interfaces\" />
+    <None Remove="Interfaces\Services\" />
+    <None Remove="Interfaces\Listeners\" />
+    <None Remove="Interfaces\Senders\" />
+    <None Remove="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+    <Folder Include="Interfaces\Services\" />
+    <Folder Include="Interfaces\Listeners\" />
+    <Folder Include="Interfaces\Senders\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BackendModelLibrary\BackendModelLibrary.csproj" />
+  </ItemGroup>
+</Project>
