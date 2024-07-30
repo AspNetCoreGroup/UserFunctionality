@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using BackendCommonLibrary.Interfaces.Listeners;
+using CommonLibrary.Interfaces.Listeners;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 

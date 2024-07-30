@@ -1,9 +1,9 @@
-﻿using BackendCommonLibrary.Extensions;
-using BackendCommonLibrary.Interfaces.Senders;
-using BackendCommonLibrary.Interfaces.Services;
-using BackendModelLibrary.Messages;
-using BackendModelLibrary.Model;
-using BackendModelLibrary.Model.Enums;
+﻿using CommonLibrary.Extensions;
+using CommonLibrary.Interfaces.Senders;
+using CommonLibrary.Interfaces.Services;
+using ModelLibrary.Messages;
+using ModelLibrary.Model;
+using ModelLibrary.Model.Enums;
 using BackendService.DataSources;
 using BackendService.Model.Entities;
 using Microsoft.EntityFrameworkCore;

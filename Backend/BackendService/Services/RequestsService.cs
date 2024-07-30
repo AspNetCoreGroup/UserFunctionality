@@ -1,8 +1,8 @@
 ﻿using System;
-using BackendCommonLibrary.Extensions;
-using BackendCommonLibrary.Interfaces.Senders;
-using BackendCommonLibrary.Interfaces.Listeners;
-using BackendCommonLibrary.Interfaces.Services;
+using CommonLibrary.Extensions;
+using CommonLibrary.Interfaces.Senders;
+using CommonLibrary.Interfaces.Listeners;
+using CommonLibrary.Interfaces.Services;
 using System.Text.Json;
 
 namespace BackendService.Services
