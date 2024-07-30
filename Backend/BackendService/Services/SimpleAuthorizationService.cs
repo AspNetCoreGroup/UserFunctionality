@@ -1,4 +1,4 @@
-﻿using BackendCommonLibrary.Interfaces.Services;
+﻿using CommonLibrary.Interfaces.Services;
 using BackendService.DataSources;
 
 namespace BackendService.Services

@@ -1,5 +1,5 @@
-﻿using BackendCommonLibrary.Interfaces.Services;
-using BackendModelLibrary.Model;
+﻿using CommonLibrary.Interfaces.Services;
+using ModelLibrary.Model;
 using BackendService.DataSources;
 using BackendService.Model.Entities;
 using Microsoft.EntityFrameworkCore;

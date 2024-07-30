@@ -1,6 +1,6 @@
-﻿using BackendCommonLibrary.Interfaces.Services;
-using BackendModelLibrary.Requests;
-using BackendModelLibrary.Responses;
+﻿using CommonLibrary.Interfaces.Services;
+using ModelLibrary.Requests;
+using ModelLibrary.Responses;
 
 namespace BackendService.Services
 {

@@ -1,4 +1,4 @@
-﻿using BackendCommonLibrary.Interfaces.Services;
+﻿using CommonLibrary.Interfaces.Services;
 
 namespace BackendService.Middlewares
 {

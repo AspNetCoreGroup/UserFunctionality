@@ -1,6 +1,6 @@
-﻿using BackendCommonLibrary.Interfaces.Listeners;
-using BackendCommonLibrary.Interfaces.Senders;
-using BackendCommonLibrary.Interfaces.Services;
+﻿using CommonLibrary.Interfaces.Listeners;
+using CommonLibrary.Interfaces.Senders;
+using CommonLibrary.Interfaces.Services;
 using BackendService.DataSources;
 using BackendService.Listeners;
 using BackendService.Middlewares;

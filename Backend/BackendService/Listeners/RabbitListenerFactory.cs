@@ -1,4 +1,4 @@
-﻿using BackendCommonLibrary.Interfaces.Listeners;
+﻿using CommonLibrary.Interfaces.Listeners;
 
 namespace BackendService.Listeners
 {

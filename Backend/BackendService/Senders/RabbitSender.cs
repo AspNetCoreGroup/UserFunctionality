@@ -1,4 +1,4 @@
-﻿using BackendCommonLibrary.Interfaces.Senders;
+﻿using CommonLibrary.Interfaces.Senders;
 using RabbitMQ.Client;
 using System.Text;
 
