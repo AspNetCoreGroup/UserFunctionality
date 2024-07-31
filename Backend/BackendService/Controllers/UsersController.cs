@@ -1,7 +1,6 @@
 ﻿using CommonLibrary.Interfaces.Services;
-using ModelLibrary.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using ModelLibrary.Model;
 
 namespace Backend.Controllers;
 
@@ -37,26 +36,38 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddAsync(UserDto user)
+    public Task<IActionResult> AddAsync(UserDto user)
     {
+        throw new Exception("Добавление пользователей доступно только через API авторизации.");
+
+        /*
         await UsersService.CreateUserAsync(user);
 
         return Ok();
+        */
     }
 
     [HttpPut("{userID}")]
-    public async Task<IActionResult> UpdateAsync(UserDto user, int userID)
+    public Task<IActionResult> UpdateAsync(UserDto user, int userID)
     {
+        throw new Exception("Изменение пользователей доступно только через API авторизации.");
+
+        /*
         await UsersService.UpdateUserAsync(userID, user);
 
         return Ok();
+        */
     }
 
     [HttpDelete("{userID}")]
-    public async Task<IActionResult> DeleteAsync(int userID)
+    public Task<IActionResult> DeleteAsync(int userID)
     {
+        throw new Exception("Удаление пользователей доступно только через API авторизации.");
+
+        /*
         await UsersService.DeleteUserAsync(userID);
 
         return Ok();
+        */
     }
 }

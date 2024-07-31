@@ -1,11 +1,12 @@
-﻿using CommonLibrary.Interfaces.Listeners;
+﻿using BackendService.DataSources;
+using BackendService.HostedServices;
+using BackendService.Middlewares;
+using BackendService.Services;
+using CommonLibrary.Interfaces.Listeners;
 using CommonLibrary.Interfaces.Senders;
 using CommonLibrary.Interfaces.Services;
-using BackendService.DataSources;
-using BackendService.Listeners;
-using BackendService.Middlewares;
-using BackendService.Senders;
-using BackendService.Services;
+using RabbitLibrary.Listeners;
+using RabbitLibrary.Senders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,7 @@ builder.Services.AddScoped<IMessageListenerFactory, RabbitListenerFactory>();
 
 builder.Services.AddScoped<IAuthorizationService, SimpleAuthorizationService>();
 
+builder.Services.AddHostedService<UsersDataEventsService>();
 
 var app = builder.Build();
 
