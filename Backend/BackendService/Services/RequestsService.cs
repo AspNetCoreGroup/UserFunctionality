@@ -35,7 +35,7 @@ namespace BackendService.Services
             using var listener = MessageListenerFactory.CreateListener(path);
             var resultCatcher = new ResultCatcher<string>();
 
-            listener.AddHandler((q, c) =>
+            listener.AddHandler((q, c, p) =>
             {
                 resultCatcher.SetResult(c);
             });

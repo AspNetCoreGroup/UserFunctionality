@@ -1,12 +1,10 @@
-﻿using CommonLibrary.Extensions;
+﻿using BackendService.DataSources;
+using BackendService.Model.Entities;
+using CommonLibrary.Extensions;
 using CommonLibrary.Interfaces.Senders;
 using CommonLibrary.Interfaces.Services;
-using ModelLibrary.Messages;
-using ModelLibrary.Model;
-using ModelLibrary.Model.Enums;
-using BackendService.DataSources;
-using BackendService.Model.Entities;
 using Microsoft.EntityFrameworkCore;
+using ModelLibrary.Model;
 
 namespace BackendService.Services
 {
@@ -51,8 +49,6 @@ namespace BackendService.Services
 
             Context.Add(user);
             await Context.SaveChangesAsync();
-
-            await NotifyUserDataEventAsync(user, DataEventOperationType.Add);
         }
 
         public async Task UpdateUserAsync(int userID, UserDto userDto)
@@ -63,8 +59,6 @@ namespace BackendService.Services
 
             Context.Attach(user);
             await Context.SaveChangesAsync();
-
-            await NotifyUserDataEventAsync(user, DataEventOperationType.Update);
         }
 
         public async Task DeleteUserAsync(int userID)
@@ -82,26 +76,6 @@ namespace BackendService.Services
             Context.Remove(user);
 
             await Context.SaveChangesAsync();
-
-            await NotifyUserDataEventAsync(user, DataEventOperationType.Delete);
-        }
-
-        private async Task NotifyUserDataEventAsync(User user, DataEventOperationType operationType)
-        {
-            try
-            {
-                var dataEvent = new DataEventMessage<User>()
-                {
-                    Operation = operationType,
-                    Data = user
-                };
-
-                await MessageSender.SendMessageAsync("BackendAll", dataEvent);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogCritical(ex, "Error on user event notification. Data may be lost.");
-            }
         }
 
         private static UserDto Convert(User user)

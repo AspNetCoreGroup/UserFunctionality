@@ -39,7 +39,6 @@
     <Folder Include="Model\Entities\" />
     <Folder Include="Services\" />
     <Folder Include="Middlewares\" />
-    <Folder Include="Senders\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="CommonLibrary">
@@ -47,6 +46,9 @@
     </Reference>
     <Reference Include="ModelLibrary">
       <HintPath>packages\CommonLibrary\net8.0\ModelLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitLibrary">
+      <HintPath>packages\CommonLibrary\net8.0\RabbitLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
