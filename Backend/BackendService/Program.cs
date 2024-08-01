@@ -1,4 +1,5 @@
-﻿using BackendService.DataSources;
+﻿using BackendCommonLibrary.Interfaces.Services;
+using BackendService.DataSources;
 using BackendService.HostedServices;
 using BackendService.Middlewares;
 using BackendService.Services;
@@ -9,8 +10,6 @@ using RabbitLibrary.Listeners;
 using RabbitLibrary.Senders;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -23,17 +22,20 @@ builder.Services.AddDbContext<BackendContext>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IDevicesService, DevicesService>();
 builder.Services.AddScoped<INetworksService, NetworksService>();
+builder.Services.AddScoped<INetworkDevicesService, NetworkDevicesService>();
+builder.Services.AddScoped<INetworkUsersService, NetworkUsersService>();
+builder.Services.AddScoped<IGraphsService, GraphsService>();
 
 builder.Services.AddScoped<IMessageSender, RabbitSender>();
 builder.Services.AddScoped<IMessageListenerFactory, RabbitListenerFactory>();
+builder.Services.AddScoped<IRequestsService, MessagesQueueRequestsService>();
 
-builder.Services.AddScoped<IAuthorizationService, SimpleAuthorizationService>();
+builder.Services.AddSingleton<IAuthorizationService, SimpleAuthorizationService>();
 
-builder.Services.AddHostedService<UsersDataEventsService>();
+//builder.Services.AddHostedService<DataEventsService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -45,6 +47,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionsMiddleware>();
+app.UseMiddleware<AuthorizationMiddleware>();
 
 app.MapControllers();
 

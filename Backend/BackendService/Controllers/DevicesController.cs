@@ -1,6 +1,6 @@
-﻿using CommonLibrary.Interfaces.Services;
-using ModelLibrary.Model;
+﻿using BackendCommonLibrary.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using ModelLibrary.Model;
 
 namespace Backend.Controllers;
 
@@ -36,26 +36,32 @@ public class DevicesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddAsync(DeviceDto device)
+    public Task<IActionResult> AddAsync(DeviceDto device)
     {
-        await DevicesService.CreateDeviceAsync(device);
+        throw new Exception("Добавление устройств доступно только через API получения данных.");
 
-        return Ok();
+        //await DevicesService.CreateDeviceAsync(device);
+
+        //return Ok();
     }
 
     [HttpPut("{deviceID}")]
-    public async Task<IActionResult> UpdateAsync(DeviceDto device, int deviceID)
+    public Task<IActionResult> UpdateAsync(DeviceDto device, int deviceID)
     {
-        await DevicesService.UpdateDeviceAsync(deviceID, device);
+        throw new Exception("Добавление устройств доступно только через API получения данных.");
 
-        return Ok();
+        //await DevicesService.UpdateDeviceAsync(deviceID, device);
+
+        //return Ok();
     }
 
     [HttpDelete("{deviceID}")]
-    public async Task<IActionResult> DeleteAsync(int deviceID)
+    public Task<IActionResult> DeleteAsync(int deviceID)
     {
-        await DevicesService.DeleteDeviceAsync(deviceID);
+        throw new Exception("Добавление устройств доступно только через API получения данных.");
 
-        return Ok();
+        //await DevicesService.DeleteDeviceAsync(deviceID);
+
+        //return Ok();
     }
 }

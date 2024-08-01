@@ -2,8 +2,9 @@
 using CommonLibrary.Extensions;
 using CommonLibrary.Interfaces.Senders;
 using CommonLibrary.Interfaces.Listeners;
-using CommonLibrary.Interfaces.Services;
+using BackendCommonLibrary.Interfaces.Services;
 using System.Text.Json;
+using CommonLibrary.Interfaces.Services;
 
 namespace BackendService.Services
 {

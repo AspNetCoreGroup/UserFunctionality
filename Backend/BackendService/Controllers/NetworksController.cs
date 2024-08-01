@@ -1,6 +1,6 @@
-﻿using CommonLibrary.Interfaces.Services;
-using ModelLibrary.Model;
+﻿using BackendCommonLibrary.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using ModelLibrary.Model;
 
 namespace Backend.Controllers;
 
@@ -20,41 +20,41 @@ public class NetworksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetAsync(int requestingUserID)
     {
-        var network = await NetworksService.GetNetworksAsync();
+        var network = await NetworksService.GetNetworksAsync(requestingUserID);
 
         return Ok(network);
     }
 
     [HttpGet("{networkID}")]
-    public async Task<IActionResult> GetAsync(int networkID)
+    public async Task<IActionResult> GetAsync(int requestingUserID, int networkID)
     {
-        var networks = await NetworksService.GetNetworkAsync(networkID);
+        var networks = await NetworksService.GetNetworkAsync(requestingUserID, networkID);
 
         return Ok(networks);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddAsync(NetworkDto network)
+    public async Task<IActionResult> AddAsync(int requestingUserID, NetworkDto network)
     {
-        await NetworksService.CreateNetworkAsync(network);
+        await NetworksService.CreateNetworkAsync(requestingUserID, network);
 
         return Ok();
     }
 
     [HttpPut("{networkID}")]
-    public async Task<IActionResult> UpdateAsync(NetworkDto network, int networkID)
+    public async Task<IActionResult> UpdateAsync(int requestingUserID, int networkID, NetworkDto network)
     {
-        await NetworksService.UpdateNetworkAsync(networkID, network);
+        await NetworksService.UpdateNetworkAsync(requestingUserID, networkID, network);
 
         return Ok();
     }
 
     [HttpDelete("{networkID}")]
-    public async Task<IActionResult> DeleteAsync(int networkID)
+    public async Task<IActionResult> DeleteAsync(int requestingUserID, int networkID)
     {
-        await NetworksService.DeleteNetworkAsync(networkID);
+        await NetworksService.DeleteNetworkAsync(requestingUserID, networkID);
 
         return Ok();
     }

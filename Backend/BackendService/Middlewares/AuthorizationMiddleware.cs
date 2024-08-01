@@ -1,12 +1,15 @@
-﻿using CommonLibrary.Interfaces.Services;
+﻿using BackendCommonLibrary.Interfaces.Services;
 
 namespace BackendService.Middlewares
 {
     public class AuthorizationMiddleware
     {
         private RequestDelegate Next { get; }
+
         private ILogger Logger { get; }
+
         private IAuthorizationService AuthorizationService { get; }
+
 
         public AuthorizationMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, IAuthorizationService authorizationService)
         {
@@ -20,10 +23,10 @@ namespace BackendService.Middlewares
         {
             try
             {
-                var token = context.Items["token"]?.ToString() ?? "";
-                var userID = AuthorizationService.GetAuthorisedUserIDAsync(token);
+                var token = context.Items["auth_token"]?.ToString() ?? "";
+                var userID = await AuthorizationService.GetAuthorisedUserIDAsync(token);
 
-                context.Items["requestUserID"] = userID;
+                context.Items["requestingUserID"] = userID;
 
                 await Next.Invoke(context);
             }

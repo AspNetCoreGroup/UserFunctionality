@@ -1,8 +1,7 @@
 ﻿using BackendService.DataSources;
 using BackendService.Model.Entities;
 using CommonLibrary.Extensions;
-using CommonLibrary.Interfaces.Senders;
-using CommonLibrary.Interfaces.Services;
+using BackendCommonLibrary.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 using ModelLibrary.Model;
 
@@ -14,18 +13,15 @@ namespace BackendService.Services
 
         private ILogger Logger { get; }
 
-        private IMessageSender MessageSender { get; }
-
         private BackendContext Context { get; }
 
         #endregion
 
         #region Функционал
 
-        public UsersService(ILoggerFactory loggerFactory, IMessageSender messageSender, BackendContext context)
+        public UsersService(ILoggerFactory loggerFactory, BackendContext context)
         {
             Logger = loggerFactory.CreateLogger<UsersService>();
-            MessageSender = messageSender;
             Context = context;
         }
 

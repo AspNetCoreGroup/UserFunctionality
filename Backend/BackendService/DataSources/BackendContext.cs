@@ -10,17 +10,14 @@ public class BackendContext : DbContext
     public DbSet<Device> Devices { get; set; }
     public DbSet<NetworkUser> NetworkUsers { get; set; }
     public DbSet<NetworkDevice> NetworkDevices { get; set; }
-    public DbSet<NetworkUsersGroup> NetworkUsersGroups { get; set; }
-    public DbSet<NetworkDevicesGroup> NetworkDevicesGroups { get; set; }
-    public DbSet<NetworkDevicesAccess> NetworkDevicesAccesses { get; set; }
+    public DbSet<NetworkRule> NetworkRules { get; set; }
 
     private IConfiguration Configuration { get; set; }
 
     public BackendContext(IConfiguration configuration)
     {
         Configuration = configuration;
-        //Database.EnsureCreated();
-        //Database.EnsureDeleted();
+        Database.EnsureCreated();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

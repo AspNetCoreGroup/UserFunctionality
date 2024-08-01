@@ -1,24 +1,25 @@
-﻿using CommonLibrary.Extensions;
+﻿using System.Text.Json;
+using BackendCommonLibrary.Interfaces.Services;
+using CommonLibrary.Extensions;
 using CommonLibrary.Interfaces.Listeners;
-using CommonLibrary.Interfaces.Services;
 using ModelLibrary.Messages;
 using ModelLibrary.Model;
 using ModelLibrary.Model.Enums;
-using System.Text.Json;
 
 namespace BackendService.HostedServices
 {
-    public class UsersDataEventsService : BackgroundService
+    public class DataEventsService : BackgroundService
     {
-        private IMessageListenerFactory MessageListenerFactory { get; set; }
-        private ILogger Logger { get; set; }
-        private IUsersService UsersService { get; set; }
+        private IServiceProvider ServiceProvider { get; set; }
 
-        public UsersDataEventsService(IMessageListenerFactory messageListenerFactory, ILoggerFactory loggerFactory, IUsersService usersService)
+        private ILogger Logger { get; set; }
+
+
+
+        public DataEventsService(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
         {
-            MessageListenerFactory = messageListenerFactory;
-            Logger = loggerFactory.CreateLogger<UsersDataEventsService>();
-            UsersService = usersService;
+            ServiceProvider = serviceProvider;
+            Logger = loggerFactory.CreateLogger<DataEventsService>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,7 +28,8 @@ namespace BackendService.HostedServices
             {
                 Logger.LogInformation("Сервис запущен.");
 
-                using var listener = MessageListenerFactory.CreateListener("AuthorizationBackend");
+                using var listenerFactory = ServiceProvider.GetService<IMessageListenerFactory>()!;
+                using var listener = listenerFactory.CreateListener("AuthorizationBackend");
 
                 listener.AddHandler(ProcessMessage);
 
@@ -71,6 +73,12 @@ namespace BackendService.HostedServices
                     ProcessUserMessage(dataEvent).Wait();
                 }
 
+                if (contentType == "DataEventMessage<DeviceDto>")
+                {
+                    var dataEvent = DeserializeMessage<DataEventMessage<DeviceDto>>(message);
+                    ProcessDeviceMessage(dataEvent).Wait();
+                }
+
                 Logger.LogInformation("Обработано сообщение \"{queueName}\"  - \"{message}\".", queueName, message);
             }
             catch (Exception e)
@@ -86,18 +94,37 @@ namespace BackendService.HostedServices
 
         private async Task ProcessUserMessage(DataEventMessage<UserDto> userDataEvent)
         {
+            var usersService = ServiceProvider.GetService<IUsersService>()!;
+
             if (userDataEvent.Operation == DataEventOperationType.Add)
             {
-                await UsersService.CreateUserAsync(userDataEvent.Data!);
+                await usersService.CreateUserAsync(userDataEvent.Data!);
             }
             else if (userDataEvent.Operation == DataEventOperationType.Update)
             {
-                await UsersService.UpdateUserAsync(userDataEvent.Data!.UserID, userDataEvent.Data!);
+                await usersService.UpdateUserAsync(userDataEvent.Data!.UserID, userDataEvent.Data!);
             }
             else if (userDataEvent.Operation == DataEventOperationType.Delete)
             {
-                await UsersService.DeleteUserAsync(userDataEvent.Data!.UserID);
+                await usersService.DeleteUserAsync(userDataEvent.Data!.UserID);
+            }
+        }
 
+        private async Task ProcessDeviceMessage(DataEventMessage<DeviceDto> deviceDataEvent)
+        {
+            var devicesService = ServiceProvider.GetService<IDevicesService>()!;
+            
+            if (deviceDataEvent.Operation == DataEventOperationType.Add)
+            {
+                await devicesService.CreateDeviceAsync(deviceDataEvent.Data!);
+            }
+            else if (deviceDataEvent.Operation == DataEventOperationType.Update)
+            {
+                await devicesService.UpdateDeviceAsync(deviceDataEvent.Data!.DeviceID, deviceDataEvent.Data!);
+            }
+            else if (deviceDataEvent.Operation == DataEventOperationType.Delete)
+            {
+                await devicesService.DeleteDeviceAsync(deviceDataEvent.Data!.DeviceID);
             }
         }
     }
