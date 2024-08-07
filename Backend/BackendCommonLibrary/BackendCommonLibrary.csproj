@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="CommonLibrary">
       <HintPath>..\BackendService\packages\CommonLibrary\net8.0\CommonLibrary.dll</HintPath>
     </Reference>
@@ -19,4 +15,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Interfaces\BackgroundServices\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\BackgroundServices\" />
+  </ItemGroup>
 </Project>
