@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>..\BackendService\packages\CommonLibrary\net8.0\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="ModelLibrary">
+      <HintPath>..\BackendService\packages\CommonLibrary\net8.0\ModelLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Interfaces\BackgroundServices\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\BackgroundServices\" />
+  </ItemGroup>
+</Project>

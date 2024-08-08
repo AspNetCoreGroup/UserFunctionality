@@ -1,4 +1,4 @@
-﻿using CommonLibrary.Interfaces.Services;
+﻿using BackendCommonLibrary.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using ModelLibrary.Model;
 
@@ -36,15 +36,15 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public Task<IActionResult> AddAsync(UserDto user)
+    public async Task<IActionResult> AddAsync(UserDto user)
     {
-        throw new Exception("Добавление пользователей доступно только через API авторизации.");
+        //throw new Exception("Добавление пользователей доступно только через API авторизации.");
 
-        /*
+        ///*
         await UsersService.CreateUserAsync(user);
 
         return Ok();
-        */
+        //*/
     }
 
     [HttpPut("{userID}")]

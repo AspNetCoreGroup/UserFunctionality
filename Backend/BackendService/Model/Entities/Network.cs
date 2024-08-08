@@ -11,13 +11,12 @@ namespace BackendService.Model.Entities
 
         public required string NetworkTitle { get; set; }
 
+        public required int CreatorUserID { get; set; }
+
+        public bool IsDeleted { get; set; }
 
         public List<NetworkUser>? NetworkUsers { get; set; }
 
-        public List<NetworkUsersGroup>? NetworkUsersGroup { get; set; }
-
         public List<NetworkDevice>? NetworkDevices { get; set; }
-
-        public List<NetworkDevicesGroup>? NetworkDevicesGroup { get; set; }
     }
 }

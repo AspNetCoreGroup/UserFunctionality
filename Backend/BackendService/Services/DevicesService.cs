@@ -1,17 +1,22 @@
-﻿using CommonLibrary.Interfaces.Services;
-using ModelLibrary.Model;
+﻿using BackendCommonLibrary.Interfaces.Services;
 using BackendService.DataSources;
 using BackendService.Model.Entities;
 using Microsoft.EntityFrameworkCore;
+using ModelLibrary.Model;
 
 namespace BackendService.Services
 {
     public class DevicesService : IDevicesService
     {
+        #region Поля
+
         private ILogger Logger { get; set; }
 
         private BackendContext Context { get; set; }
 
+        #endregion
+
+        #region Функционал
 
         public DevicesService(ILoggerFactory loggerFactory, BackendContext context)
         {
@@ -83,5 +88,7 @@ namespace BackendService.Services
                 DeviceCustomTitle = device.DeviceCustomTitle
             };
         }
+
+        #endregion
     }
 }

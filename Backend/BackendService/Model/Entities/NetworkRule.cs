@@ -3,20 +3,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BackendService.Model.Entities
 {
-    [Table("NetworkUsers")]
-    public class NetworkUser
+    [Table("NetworkRules")]
+    public class NetworkRule
     {
         [Key]
-        public int NetworkUserID { get; set; }
+        public int NetworkRuleID { get; set; }
 
         public int NetworkID { get; set; }
 
-        public int UserID { get; set; }
+        public int? UserID { get; set; }
 
-        public bool IsAdmin { get; set; }
+        public string? NotificationType { get; set; }
 
-        public bool IsEditor { get; set; }
-
+        public string? RuleExpression { get; set; }
 
         public Network? Network { get; set; }
 

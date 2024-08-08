@@ -1,27 +1,37 @@
-﻿using CommonLibrary.Extensions;
+﻿using System.Text.Json;
+using BackendCommonLibrary.Interfaces.BackgroundServices;
+using BackendCommonLibrary.Interfaces.Services;
+using CommonLibrary.Extensions;
 using CommonLibrary.Interfaces.Listeners;
-using CommonLibrary.Interfaces.Services;
 using ModelLibrary.Messages;
 using ModelLibrary.Model;
 using ModelLibrary.Model.Enums;
-using System.Text.Json;
 
-namespace BackendService.HostedServices
+namespace BackendService.BackgroundServices
 {
-    public class UsersDataEventsService : BackgroundService
+    public class DataEventsService : IDataEventsService
     {
-        private IMessageListenerFactory MessageListenerFactory { get; set; }
-        private ILogger Logger { get; set; }
-        private IUsersService UsersService { get; set; }
+        private IConfiguration Configuration { get; }
 
-        public UsersDataEventsService(IMessageListenerFactory messageListenerFactory, ILoggerFactory loggerFactory, IUsersService usersService)
+        private ILogger Logger { get; }
+
+        private IUsersService UsersService { get; }
+
+        private IDevicesService DevicesService { get; }
+
+        private IMessageListenerFactory MessageListenerFactory { get; }
+
+
+        public DataEventsService(IConfiguration configuration, IDevicesService devicesService, IUsersService usersService, IMessageListenerFactory messageListenerFactory, ILoggerFactory loggerFactory)
         {
-            MessageListenerFactory = messageListenerFactory;
-            Logger = loggerFactory.CreateLogger<UsersDataEventsService>();
+            Configuration = configuration;
             UsersService = usersService;
+            DevicesService = devicesService;
+            MessageListenerFactory = messageListenerFactory;
+            Logger = loggerFactory.CreateLogger<DataEventsBackgroundService>();
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public async Task WorkAsync(CancellationToken stoppingToken)
         {
             try
             {
@@ -71,6 +81,12 @@ namespace BackendService.HostedServices
                     ProcessUserMessage(dataEvent).Wait();
                 }
 
+                if (contentType == "DataEventMessage<DeviceDto>")
+                {
+                    var dataEvent = DeserializeMessage<DataEventMessage<DeviceDto>>(message);
+                    ProcessDeviceMessage(dataEvent).Wait();
+                }
+
                 Logger.LogInformation("Обработано сообщение \"{queueName}\"  - \"{message}\".", queueName, message);
             }
             catch (Exception e)
@@ -97,7 +113,22 @@ namespace BackendService.HostedServices
             else if (userDataEvent.Operation == DataEventOperationType.Delete)
             {
                 await UsersService.DeleteUserAsync(userDataEvent.Data!.UserID);
+            }
+        }
 
+        private async Task ProcessDeviceMessage(DataEventMessage<DeviceDto> deviceDataEvent)
+        {
+            if (deviceDataEvent.Operation == DataEventOperationType.Add)
+            {
+                await DevicesService.CreateDeviceAsync(deviceDataEvent.Data!);
+            }
+            else if (deviceDataEvent.Operation == DataEventOperationType.Update)
+            {
+                await DevicesService.UpdateDeviceAsync(deviceDataEvent.Data!.DeviceID, deviceDataEvent.Data!);
+            }
+            else if (deviceDataEvent.Operation == DataEventOperationType.Delete)
+            {
+                await DevicesService.DeleteDeviceAsync(deviceDataEvent.Data!.DeviceID);
             }
         }
     }

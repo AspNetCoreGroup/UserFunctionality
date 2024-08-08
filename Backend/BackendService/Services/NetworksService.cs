@@ -1,13 +1,15 @@
-﻿using CommonLibrary.Interfaces.Services;
-using ModelLibrary.Model;
+﻿using BackendCommonLibrary.Interfaces.Services;
 using BackendService.DataSources;
 using BackendService.Model.Entities;
 using Microsoft.EntityFrameworkCore;
+using ModelLibrary.Model;
 
 namespace BackendService.Services
 {
     public class NetworksService : INetworksService
     {
+        #region Инициализация
+
         private ILogger Logger { get; set; }
 
         private BackendContext Context { get; set; }
@@ -19,47 +21,97 @@ namespace BackendService.Services
             Context = context;
         }
 
-        public async Task<NetworkDto> GetNetworkAsync(int networkID)
+        #endregion
+
+        #region Функционал
+
+        public async Task<NetworkDto> GetNetworkAsync(int requestingUserID, int networkID)
         {
-            var network = await Context.Networks.FindAsync(networkID) ?? throw new KeyNotFoundException($"Network with networkID {networkID}");
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
+            var userNetworks = Context.NetworkUsers.Where(x => x.UserID == requestingUserID);
+
+            var networksQuery = activeNetworks.Join(userNetworks,
+                (n) => n.NetworkID,
+                (u) => u.NetworkID,
+                (n, u) => n);
+
+            var network = await networksQuery.FirstOrDefaultAsync(x => x.NetworkID == networkID)
+                ?? throw new Exception("Cannot find the network because it does not exist or you do not have permissions");
 
             return Convert(network);
         }
 
-        public async Task<IEnumerable<NetworkDto>> GetNetworksAsync()
+        public async Task<IEnumerable<NetworkDto>> GetNetworksAsync(int requestingUserID)
         {
-            var networks = await Context.Networks.ToListAsync();
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
+            var userNetworks = Context.NetworkUsers.Where(x => x.UserID == requestingUserID);
 
-            return networks.Select(Convert);
+            var networksQuery = activeNetworks.Join(userNetworks,
+                (n) => n.NetworkID,
+                (u) => u.NetworkID,
+                (n, u) => n);
+
+            var networks = await networksQuery.ToListAsync();
+
+            return networks.Select(Convert).ToList();
         }
 
-        public async Task CreateNetworkAsync(NetworkDto networkDto)
-        {
-            var network = Convert(networkDto);
-
-            Context.Add(network);
-            await Context.SaveChangesAsync();
-        }
-
-        public async Task UpdateNetworkAsync(int networkID, NetworkDto networkDto)
-        {
-            var network = Convert(networkDto);
-
-            network.NetworkID = networkID;
-
-            Context.Attach(network);
-            await Context.SaveChangesAsync();
-        }
-
-        public async Task DeleteNetworkAsync(int networkID)
+        public async Task CreateNetworkAsync(int requestingUserID, NetworkDto networkDto)
         {
             var network = new Network()
             {
-                NetworkID = networkID,
-                NetworkTitle = ""
+                CreatorUserID = requestingUserID,
+                NetworkTitle = networkDto.NetworkTitle
             };
 
-            Context.Remove(network);
+            var networkUser = new NetworkUser()
+            {
+                Network = network,
+                UserID = requestingUserID,
+                IsAdmin = true,
+                IsEditor = true
+            };
+
+            Context.Add(network);
+            Context.Add(networkUser);
+
+            await Context.SaveChangesAsync();
+
+            Logger.LogInformation("1231212312");
+        }
+
+        public async Task UpdateNetworkAsync(int requestingUserID, int networkID, NetworkDto networkDto)
+        {
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
+            var userNetworks = Context.NetworkUsers.Where(x => x.UserID == requestingUserID && x.IsAdmin);
+
+            var networksQuery = activeNetworks.Join(userNetworks,
+                (n) => n.NetworkID,
+                (u) => u.NetworkID,
+                (n, u) => n);
+
+            var network = await networksQuery.FirstOrDefaultAsync(x => x.NetworkID == networkID)
+                ?? throw new Exception("Cannot find the network because it does not exist or you do not have permissions");
+
+            network.NetworkTitle = networkDto.NetworkTitle;
+
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task DeleteNetworkAsync(int requestingUserID, int networkID)
+        {
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
+            var userNetworks = Context.NetworkUsers.Where(x => x.UserID == requestingUserID && x.IsAdmin);
+
+            var networksQuery = activeNetworks.Join(userNetworks,
+                (n) => n.NetworkID,
+                (u) => u.NetworkID,
+                (n, u) => n);
+
+            var network = await networksQuery.FirstOrDefaultAsync(x => x.NetworkID == networkID)
+                ?? throw new Exception("Cannot find the network because it does not exist or you do not have permissions");
+
+            network.IsDeleted = true;
 
             await Context.SaveChangesAsync();
         }
@@ -73,13 +125,6 @@ namespace BackendService.Services
             };
         }
 
-        private static Network Convert(NetworkDto network)
-        {
-            return new Network()
-            {
-                NetworkID = network.NetworkID,
-                NetworkTitle = network.NetworkTitle
-            };
-        }
+        #endregion
     }
 }

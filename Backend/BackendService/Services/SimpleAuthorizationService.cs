@@ -1,64 +1,23 @@
-﻿using CommonLibrary.Interfaces.Services;
-using BackendService.DataSources;
+﻿using BackendCommonLibrary.Interfaces.Services;
 
 namespace BackendService.Services
 {
+    /// <summary>
+    /// Тестовая реализация сервиса авторизации. Токен авторизации для каждого пользователя представлен в формате "token:{UserID}".
+    /// </summary>
     public class SimpleAuthorizationService : IAuthorizationService
     {
-        private BackendContext Context { get; set; }
-
-        private Dictionary<string, int> UsersTokens { get; set; }
-
-
-        public SimpleAuthorizationService(BackendContext context)
+        public Task<int> GetAuthorisedUserIDAsync(string token)
         {
-            Context = context;
-
-            UsersTokens = new Dictionary<string, int>();
-        }
-
-        public async Task RegisterAsync(string login, string password)
-        {
-            await Task.CompletedTask;
-        }
-
-        public async Task RegisterConfirmationAsync()
-        {
-            await Task.CompletedTask;
-        }
-
-        public async Task<string> LoginAsync(string login, string password)
-        {
-            await Task.CompletedTask;
-
-            var user = Context.Users.FirstOrDefault(x => x.UserLogin == login && x.UserPassword == password)
-                ?? throw new Exception("Invalid login or password.");
-
-            var token = Guid.NewGuid().ToString();
-
-            lock (UsersTokens)
+            try
             {
-                UsersTokens.Add(token, user.UserID);
+                return Task.FromResult(1);
+                //return Task.FromResult(int.Parse(token.Split("token:")[1]));
             }
-
-            return token;
-        }
-
-        public async Task LogOutAsync(string token)
-        {
-            await Task.CompletedTask;
-
-            lock (UsersTokens)
+            catch
             {
-                UsersTokens.Remove(token);
+                throw new Exception("Токен не зарегестрирован или истек.");
             }
-        }
-
-        public async Task<int> GetAuthorisedUserIDAsync(string token)
-        {
-            await Task.CompletedTask;
-
-            return UsersTokens[token];
         }
     }
 }

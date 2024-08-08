@@ -1,6 +1,9 @@
-﻿using CommonLibrary.Interfaces.Services;
+﻿using BackendCommonLibrary.Interfaces.Services;
+using CommonLibrary.Interfaces.Services;
 using ModelLibrary.Requests;
 using ModelLibrary.Responses;
+using Plotly.NET;
+using Plotly.NET.LayoutObjects;
 
 namespace BackendService.Services
 {
@@ -13,55 +16,68 @@ namespace BackendService.Services
         private IRequestsService RequestsService { get; }
 
 
-        public GraphsService(ILogger logger, IConfiguration configuration, IRequestsService requestsService)
+        public GraphsService(ILoggerFactory loggerFactory, IConfiguration configuration, IRequestsService requestsService)
         {
-            Logger = logger;
+            Logger = loggerFactory.CreateLogger<GraphsService>();
             Configuration = configuration;
             RequestsService = requestsService;
         }
 
         public async Task<GraphResponseWrapper> GetGraph(GraphRequestWrapper request)
         {
-            return null;
+            await Task.CompletedTask;
 
-            //LinearAxis xAxis = new LinearAxis();
-            //xAxis.SetValue("title", "xAxis");
-            //xAxis.SetValue("zerolinecolor", "#ffff");
-            //xAxis.SetValue("gridcolor", "#ffff");
-            //xAxis.SetValue("showline", true);
-            //xAxis.SetValue("zerolinewidth", 2);
+            var layout = Layout.init<IConvertible>
+            (
+                Title: Title.init("A Plotly.NET Chart"),
+                PlotBGColor: Color.fromString("#e5ecf6")
+            );
 
-            //LinearAxis yAxis = new LinearAxis();
-            //yAxis.SetValue("title", "yAxis");
-            //yAxis.SetValue("zerolinecolor", "#ffff");
-            //yAxis.SetValue("gridcolor", "#ffff");
-            //yAxis.SetValue("showline", true);
-            //yAxis.SetValue("zerolinewidth", 2);
+            var xAxis = LinearAxis.init<IConvertible, IConvertible, IConvertible, IConvertible, IConvertible, IConvertible, IConvertible, IConvertible>
+            (
+                Title: Title.init("xAxis"),
+                ZeroLineColor: Color.fromString("#ffff"),
+                GridColor: Color.fromString("#ffff"),
+                ZeroLineWidth: 2
+            );
 
-            //Layout layout = new Layout();
-            //layout.SetValue("xaxis", xAxis);
-            //layout.SetValue("yaxis", yAxis);
-            //layout.SetValue("title", "A Figure Specified by DynamicObj");
-            //layout.SetValue("plot_bgcolor", "#e5ecf6");
-            //layout.SetValue("showlegend", true);
+            var yAxis = LinearAxis.init<IConvertible, IConvertible, IConvertible, IConvertible, IConvertible, IConvertible, IConvertible, IConvertible>
+            (
+                Title: Title.init("yAxis"),
+                ZeroLineColor: Color.fromString("#ffff"),
+                GridColor: Color.fromString("#ffff"),
+                ZeroLineWidth: 2
+            );
 
-            //Trace trace = new Trace("bar");
-            //trace.SetValue("x", new[] { 1, 2, 3 });
-            //trace.SetValue("y", new[] { 1, 3, 2 });
+            var chart = Chart2D.Chart
+                .Column<int, int, int, IConvertible, IConvertible>
+                (
+                    Keys: new[] { 1, 2, 3, 4, 5, 6 },
+                    values: new[] { 1, 3, 2, 12, 3, 4 }
+                )
+                .WithXAxis(xAxis)
+                .WithYAxis(yAxis)
+                .WithLayout(layout);
 
+            var resultHTML = GetPlotlyHtml(chart);
 
-            //GenericChart.toFigure(ListModule.OfSeq(new[] { trace }));
-
-            //var fig = GenericChart.Figure.create(ListModule.OfSeq(new[] { trace }), layout);
-            //GenericChart.fromFigure(fig);
+            return new GraphResponseWrapper()
+            {
+                GraphHTML = resultHTML
+            };
         }
 
-        public async Task TastAsync()
+        private static string GetPlotlyHtml(GenericChart chart)
         {
-            //RequestsService.SendRequestAsync<string,>();
+            var tempPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".html");
 
+            chart.SaveHtml(tempPath);
 
-            await Task.CompletedTask;
+            var html = File.ReadAllText(tempPath);
+
+            File.Delete(tempPath);
+
+            return html;
         }
     }
 }
