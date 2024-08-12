@@ -1,5 +1,4 @@
-﻿using System;
-namespace BackendService.Middlewares
+﻿namespace BackendService.Middlewares
 {
     public class ExceptionsMiddleware
     {

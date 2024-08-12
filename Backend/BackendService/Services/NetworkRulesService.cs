@@ -100,7 +100,7 @@ namespace BackendService.Services
 
             await Context.SaveChangesAsync();
 
-            await NotifyUserDataEventAsync(networkRule!, DataEventOperationType.Add);
+            await NotifyDataEventAsync(networkRule!, DataEventOperationType.Add);
         }
 
         public async Task UpdateNetworkRuleAsync(int requestingUserID, int networkRuleID, NetworkRuleDto networkRuleDto)
@@ -124,7 +124,7 @@ namespace BackendService.Services
 
             await Context.SaveChangesAsync();
 
-            await NotifyUserDataEventAsync(networkRule!, DataEventOperationType.Update);
+            await NotifyDataEventAsync(networkRule!, DataEventOperationType.Update);
         }
 
         public async Task DeleteNetworkRuleAsync(int requestingUserID, int networkRuleID)
@@ -140,7 +140,7 @@ namespace BackendService.Services
 
             await Context.SaveChangesAsync();
 
-            await NotifyUserDataEventAsync(networkRule!, DataEventOperationType.Delete);
+            await NotifyDataEventAsync(networkRule!, DataEventOperationType.Delete);
         }
 
         #endregion
@@ -149,7 +149,7 @@ namespace BackendService.Services
 
         private IQueryable<Network> GetUserNetworks(int userID)
         {
-            var activeNetworks = Context.Networks.Where(x => x.IsDeleted);
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
             var userNetworks = Context.NetworkUsers.Where(x => x.UserID == userID);
 
             var networksQuery = activeNetworks.Join(userNetworks,
@@ -162,7 +162,7 @@ namespace BackendService.Services
 
         private IQueryable<Network> GetUserNetworks(int userID, Expression<Func<NetworkUser, bool>> filter)
         {
-            var activeNetworks = Context.Networks.Where(x => x.IsDeleted);
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
             var userNetworks = Context.NetworkUsers.Where(x => x.UserID == userID).Where(filter);
 
             var networksQuery = activeNetworks.Join(userNetworks,
@@ -185,7 +185,7 @@ namespace BackendService.Services
             return networksQuery.AnyAsync(x => x.NetworkID == networkID);
         }
 
-        private async Task NotifyUserDataEventAsync(NetworkRule rule, DataEventOperationType operationType)
+        private async Task NotifyDataEventAsync(NetworkRule rule, DataEventOperationType operationType)
         {
             try
             {

@@ -1,9 +1,13 @@
-﻿using BackendCommonLibrary.Interfaces.Services;
+﻿using System.Linq.Expressions;
+using BackendCommonLibrary.Interfaces.Services;
 using BackendService.DataSources;
 using BackendService.Model.Entities;
+using CommonLibrary.Extensions;
+using CommonLibrary.Interfaces.Senders;
 using Microsoft.EntityFrameworkCore;
+using ModelLibrary.Messages;
 using ModelLibrary.Model;
-using System.Linq.Expressions;
+using ModelLibrary.Model.Enums;
 
 namespace BackendService.Services
 {
@@ -13,12 +17,15 @@ namespace BackendService.Services
 
         private ILogger Logger { get; set; }
 
+        private IMessageSender MessageSender { get; set; }
+
         private BackendContext Context { get; set; }
 
 
-        public NetworkUsersService(ILoggerFactory loggerFactory, BackendContext context)
+        public NetworkUsersService(ILoggerFactory loggerFactory, IMessageSender messageSender, BackendContext context)
         {
             Logger = loggerFactory.CreateLogger<NetworksService>();
+            MessageSender = messageSender;
             Context = context;
         }
 
@@ -94,6 +101,8 @@ namespace BackendService.Services
             Context.Add(networkUser);
 
             await Context.SaveChangesAsync();
+
+            await NotifyDataEventAsync(networkUser, DataEventOperationType.Add);
         }
 
         public async Task UpdateNetworkUserAsync(int requestingUserID, int networkUserID, NetworkUserDto networkUserDto)
@@ -109,6 +118,8 @@ namespace BackendService.Services
             networkUser.IsEditor = networkUserDto.IsEditor;
 
             await Context.SaveChangesAsync();
+
+            await NotifyDataEventAsync(networkUser, DataEventOperationType.Update);
         }
 
         public async Task DeleteNetworkUserAsync(int requestingUserID, int networkUserID)
@@ -123,6 +134,8 @@ namespace BackendService.Services
             Context.Remove(networkUser);
 
             await Context.SaveChangesAsync();
+
+            await NotifyDataEventAsync(networkUser, DataEventOperationType.Delete);
         }
 
         #endregion
@@ -131,7 +144,7 @@ namespace BackendService.Services
 
         private IQueryable<Network> GetUserNetworks(int userID)
         {
-            var activeNetworks = Context.Networks.Where(x => x.IsDeleted);
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
             var userNetworks = Context.NetworkUsers.Where(x => x.UserID == userID);
 
             var networksQuery = activeNetworks.Join(userNetworks,
@@ -144,7 +157,7 @@ namespace BackendService.Services
 
         private IQueryable<Network> GetUserNetworks(int userID, Expression<Func<NetworkUser, bool>> filter)
         {
-            var activeNetworks = Context.Networks.Where(x => x.IsDeleted);
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
             var userNetworks = Context.NetworkUsers.Where(x => x.UserID == userID).Where(filter);
 
             var networksQuery = activeNetworks.Join(userNetworks,
@@ -173,8 +186,28 @@ namespace BackendService.Services
             {
                 NetworkUserID = networkUser.NetworkUserID,
                 NetworkID = networkUser.NetworkID,
-                UserID = networkUser.UserID
+                UserID = networkUser.UserID,
+                IsAdmin = networkUser.IsAdmin,
+                IsEditor = networkUser.IsEditor
             };
+        }
+
+        private async Task NotifyDataEventAsync(NetworkUser user, DataEventOperationType operationType)
+        {
+            try
+            {
+                var dataEvent = new DataEventMessage<NetworkUserDto>()
+                {
+                    Operation = operationType,
+                    Data = Convert(user)
+                };
+
+                await MessageSender.SendMessageAsync("BackendAll", dataEvent);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error on user event notification. Data may be lost.");
+            }
         }
 
         #endregion

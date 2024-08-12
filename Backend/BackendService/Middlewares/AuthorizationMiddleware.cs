@@ -21,19 +21,12 @@ namespace BackendService.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            try
-            {
-                var token = context.Items["auth_token"]?.ToString() ?? "";
-                var userID = await AuthorizationService.GetAuthorisedUserIDAsync(token);
+            var token = context.Items["auth_token"]?.ToString() ?? "";
+            var userID = await AuthorizationService.GetAuthorisedUserIDAsync(token);
 
-                context.Items["requestingUserID"] = userID;
+            context.Items["requestingUserID"] = userID;
 
-                await Next.Invoke(context);
-            }
-            catch
-            {
-                context.Response.StatusCode = 403;
-            }
+            await Next.Invoke(context);
         }
     }
 }

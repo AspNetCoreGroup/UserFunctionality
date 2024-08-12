@@ -1,9 +1,13 @@
-﻿using BackendCommonLibrary.Interfaces.Services;
+﻿using System.Linq.Expressions;
+using BackendCommonLibrary.Interfaces.Services;
 using BackendService.DataSources;
 using BackendService.Model.Entities;
+using CommonLibrary.Extensions;
+using CommonLibrary.Interfaces.Senders;
 using Microsoft.EntityFrameworkCore;
+using ModelLibrary.Messages;
 using ModelLibrary.Model;
-using System.Linq.Expressions;
+using ModelLibrary.Model.Enums;
 
 namespace BackendService.Services
 {
@@ -13,12 +17,15 @@ namespace BackendService.Services
 
         private ILogger Logger { get; set; }
 
+        private IMessageSender MessageSender { get; set; }
+
         private BackendContext Context { get; set; }
 
 
-        public NetworkDevicesService(ILoggerFactory loggerFactory, BackendContext context)
+        public NetworkDevicesService(ILoggerFactory loggerFactory, IMessageSender messageSender, BackendContext context)
         {
             Logger = loggerFactory.CreateLogger<NetworksService>();
+            MessageSender = messageSender;
             Context = context;
         }
 
@@ -93,6 +100,8 @@ namespace BackendService.Services
             Context.Add(networkDevice);
 
             await Context.SaveChangesAsync();
+
+            await NotifyDataEventAsync(networkDevice, DataEventOperationType.Add);
         }
 
         public async Task UpdateNetworkDeviceAsync(int requestingUserID, int networkDeviceID, NetworkDeviceDto networkDeviceDto)
@@ -107,6 +116,7 @@ namespace BackendService.Services
             throw new Exception("Редактирование устройств в сети на данный момент не реализовано.");
 
             //await Context.SaveChangesAsync();
+            //await NotifyDataEventAsync(networkDevice, DataEventOperationType.Update);
         }
 
         public async Task DeleteNetworkDeviceAsync(int requestingUserID, int networkDeviceID)
@@ -121,6 +131,8 @@ namespace BackendService.Services
             Context.Remove(networkDevice);
 
             await Context.SaveChangesAsync();
+
+            await NotifyDataEventAsync(networkDevice, DataEventOperationType.Delete);
         }
 
         #endregion
@@ -129,7 +141,7 @@ namespace BackendService.Services
 
         private IQueryable<Network> GetUserNetworks(int userID)
         {
-            var activeNetworks = Context.Networks.Where(x => x.IsDeleted);
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
             var userNetworks = Context.NetworkUsers.Where(x => x.UserID == userID);
 
             var networksQuery = activeNetworks.Join(userNetworks,
@@ -142,7 +154,7 @@ namespace BackendService.Services
 
         private IQueryable<Network> GetUserNetworks(int userID, Expression<Func<NetworkUser, bool>> filter)
         {
-            var activeNetworks = Context.Networks.Where(x => x.IsDeleted);
+            var activeNetworks = Context.Networks.Where(x => !x.IsDeleted);
             var userNetworks = Context.NetworkUsers.Where(x => x.UserID == userID).Where(filter);
 
             var networksQuery = activeNetworks.Join(userNetworks,
@@ -173,6 +185,24 @@ namespace BackendService.Services
                 NetworkID = networkDevice.NetworkID,
                 DeviceID = networkDevice.DeviceID
             };
+        }
+
+        private async Task NotifyDataEventAsync(NetworkDevice device, DataEventOperationType operationType)
+        {
+            try
+            {
+                var dataEvent = new DataEventMessage<NetworkDeviceDto>()
+                {
+                    Operation = operationType,
+                    Data = Convert(device)
+                };
+
+                await MessageSender.SendMessageAsync("BackendAll", dataEvent);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error on user event notification. Data may be lost.");
+            }
         }
 
         #endregion

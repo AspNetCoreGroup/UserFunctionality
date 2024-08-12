@@ -50,5 +50,8 @@
     <Reference Include="RabbitLibrary">
       <HintPath>packages\CommonLibrary\net8.0\RabbitLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="DefaultRealisationLibrary">
+      <HintPath>packages\CommonLibrary\net8.0\DefaultRealisationLibrary.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
