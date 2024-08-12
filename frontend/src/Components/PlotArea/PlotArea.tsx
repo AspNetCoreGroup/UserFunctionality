@@ -7,10 +7,10 @@ import CustomPlot from "../CustomPlot/CustomPlot";
 import { State } from "../../Redux/plotType/plotTypeReducer";
 
 const textColor = process.env.REACT_APP_SELECT_PLOT_SWITCH_COLOR === undefined
-        ? '#B1AFCD'
+        ? '#53B9EA'
         : `#${process.env.REACT_APP_SELECT_PLOT_SWITCH_COLOR}`;
 
-const defaultSx = {
+export const defaultSx = {
     color: textColor,
     "&.MuiOutlinedInput-root": {
         "& fieldset": {

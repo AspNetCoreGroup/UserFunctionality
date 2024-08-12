@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useAppDispatch, useAppSelector } from "../..";
 import { loginUserActions } from "../../Redux/loginUser/loginUserActions";
-import { LoginState } from "../../Redux/loginUser/loginUserReducer";
 import { loginFormActions } from "../../Redux/loginForm/loginFormActions";
 import RegisterModel from "../../Models/RegisterModel";
 
