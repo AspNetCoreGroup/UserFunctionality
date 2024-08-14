@@ -8,6 +8,9 @@ import loginUserReducer from './Redux/loginUser/loginUserReducer';
 import { AuthProvider } from 'react-oidc-context';
 import loginFormReducer from './Redux/loginForm/loginFormReducer';
 import checkJwtExists from './common/JWT/checkJwtExists';
+import dateFromReducer from './Redux/dateFrom/dateFromReducer';
+import dateToReducer from './Redux/dateTo/dateToReducer';
+import networkReducer from './Redux/network/networkReducer';
 
 
 export const storage = configureStore(
@@ -16,10 +19,14 @@ export const storage = configureStore(
       plotType: plotTypeReducer,
       route: routeReducer,
       login: loginUserReducer,
-      loginForm: loginFormReducer
+      loginForm: loginFormReducer,
+      dateFrom: dateFromReducer,
+      dateTo: dateToReducer,
+      network: networkReducer
     }
   }
 );
+
 const state = storage.getState();
 export const useAppDispatch = useDispatch.withTypes<typeof storage.dispatch>();
 export const useAppSelector = useSelector.withTypes<typeof state>();

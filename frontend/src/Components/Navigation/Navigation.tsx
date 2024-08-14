@@ -104,17 +104,6 @@ const CustomTabs = () => {
         component={Link}
     />,
     <Tab 
-        icon={<PlayCircleFilledWhiteRoundedIcon color="secondary"/>}
-        iconPosition="start"
-        sx={{alignSelf:'start'}}
-        value={routes.launchSimulation}
-        label={
-            <NavigationButton color={textColor} label="Запуск нагрузки"/>
-        }
-        to={routes.launchSimulation}
-        component={Link}
-        />,
-    <Tab 
         icon={<SsidChartRoundedIcon color="secondary" />}
         iconPosition="start"
         sx={{alignSelf:'start'}}
@@ -137,22 +126,6 @@ const CustomTabs = () => {
         component={Link} 
         />,
     ];
-
-    if (checkJwtExists()) {
-        tabs.push(
-            <Tab 
-                icon={<ManageAccountsIcon color="secondary"/>}
-                iconPosition="start"
-                sx={{alignSelf:'start'}}
-                value={routes.userProfile}
-                label={
-                    <NavigationButton color={textColor} label="Профиль"/>
-                }
-                to={routes.userProfile}
-                component={Link} 
-                />
-        );
-    }
   
     return (
         <Tabs 
@@ -172,7 +145,6 @@ const Navigation = () => {
             <Routes>
                 <Route path="*" element={<CurrentRoute />} />
                 <Route path={routes.home} element={<CurrentRoute />} />
-                <Route path={routes.launchSimulation} element={<CurrentRoute />} />
                 <Route path={routes.monitoring} element={<CurrentRoute />} />
                 <Route path={routes.states} element={<CurrentRoute />} />
             </Routes>

@@ -2,38 +2,26 @@ import { Autocomplete, InputLabel, makeStyles, Paper, TextField } from "@mui/mat
 import NetworkDto from "../../Models/NetworkDto";
 import { useState } from "react";
 import { defaultSx } from "../PlotArea/PlotArea";
+import updateNetworks from "../../common/updateNetworks";
+import "./States.css";
 
 const States = () => {
-    const backendServerUri = `${process.env.REACT_APP_BACKEND_SERVER_URI}`;
     const [networks, setNetworks] = useState<NetworkDto[]>([
         {
             NetworkID: 1,
-            NetworkTitle: "Network 1"
+            NetworkTitle: "Network"
         },
         {
             NetworkID: 2,
-            NetworkTitle: "Network 2"
+            NetworkTitle: "Net"
         },
         {
             NetworkID: 3,
-            NetworkTitle: "Network 3"
+            NetworkTitle: "Specific"
         },
     ]);
 
-    const updateNetworks = () => {
-        fetch(`${backendServerUri}/backend/networks`,{
-            method: 'GET',
-            cache: 'no-cache',
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-        .then(response => response.json())
-        .then((json) => {
-            setNetworks(json as NetworkDto[]);
-        })
-        .catch(() => console.log('Error fetching'));
-    };
+    updateNetworks<NetworkDto[]>(setNetworks);
 
     return (
         <Autocomplete
@@ -41,8 +29,7 @@ const States = () => {
             className="networks"
             id="networks"
             options={networks.map(x => x.NetworkTitle)}
-            onMouseMove={updateNetworks}
-            style={{color: defaultSx.color}}
+            style={{color: defaultSx.color, borderColor: "#53B9EA", }}
             renderInput={(params) => <TextField {...params} 
                                 label="Сеть" 
                                 InputProps={{ ...params.InputProps, 
@@ -52,11 +39,20 @@ const States = () => {
                                 variant="outlined"
                                 InputLabelProps={{...params.InputLabelProps, style: {color: defaultSx.color}}}
                         />}
-            sx={{...defaultSx, "&.MuiAutocomplete-root": {
-        "& fieldset": {
-          borderColor: defaultSx.color,
-        },
-      }}}
+            sx={{
+                ...defaultSx,
+                "&.MuiAutocomplete-root": {
+                    "&:hover fieldset": {
+                        borderColor: defaultSx.color,
+                    },
+                    "& fieldset": {
+                        borderColor: defaultSx.color,
+                    },
+                    "& button": {
+                        color: defaultSx.color,
+                    }
+                }
+            }}
         onSelect={() => {/*тут отображение девайсов*/}}
         />
     )
