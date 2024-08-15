@@ -1,3 +1,12 @@
 .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline .MuiInputBase-input{
     border-color: #53B9EA;
 }
+
+.state__wrapper {
+    display: grid;
+    grid-template-rows: auto auto;
+}
+
+.MuiInputBase-input .MuiPaper-elevation {
+    justify-self: center;
+}

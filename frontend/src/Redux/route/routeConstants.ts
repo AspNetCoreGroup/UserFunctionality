@@ -4,4 +4,5 @@ export const route = {
     monitoring: '/monitoring',
     states: '/states',
     userProfile: '/profile',
+    administration: '/administration'
 };

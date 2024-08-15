@@ -1,4 +1,4 @@
 export default interface NetworkDto {
-    NetworkID: number | undefined;
+    NetworkID: number;
     NetworkTitle: string
 }

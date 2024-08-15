@@ -22,6 +22,7 @@ import { route } from '../../Redux/route/routeConstants';
 import { useAppDispatch, useAppSelector } from '../..';
 import { routeActions } from '../../Redux/route/routeActions';
 import checkJwtExists from '../../common/JWT/checkJwtExists';
+import { useDecodedToken } from '../App/App';
 
 const routes = route;
 
@@ -60,7 +61,11 @@ const CurrentRoute = () => {
     );
   }
 
-const CustomTabs = () => {
+interface CustomTabsProps {
+    isAdmin: boolean;
+}
+
+const CustomTabs = (props: CustomTabsProps) => {
     const routeMatch = useRouteMatch([routes.home, routes.launchSimulation, routes.monitoring, routes.states]);
 
     const textColor = process.env.REACT_APP_NAVIGATION_TAB_COLOR === undefined
@@ -126,6 +131,21 @@ const CustomTabs = () => {
         component={Link} 
         />,
     ];
+
+    if (props.isAdmin) {
+        tabs.push(
+            <Tab 
+                icon={<DisplaySettingsRoundedIcon color="secondary"/>}
+                iconPosition="start"
+                sx={{alignSelf:'start'}}
+                value={routes.administration}
+                label={
+                    <NavigationButton color={textColor} label="Администрирование"/>
+                }
+                to={routes.administration}
+                component={Link} 
+                />)
+    }
   
     return (
         <Tabs 
@@ -140,16 +160,28 @@ const CustomTabs = () => {
 }
 
 const Navigation = () => {
+    const token = useDecodedToken();
+
+    const routesJsx = [
+        <Route path="*" element={<CurrentRoute />} />,
+        <Route path={routes.home} element={<CurrentRoute />} />,
+        <Route path={routes.monitoring} element={<CurrentRoute />} />,
+        <Route path={routes.states} element={<CurrentRoute />} />,
+    ];
+
+    if (token?.IsAdmin) {
+        routesJsx.push(
+            <Route path={routes.administration} element={<CurrentRoute />} />
+        );
+    }
+
     return (
         <Router>
             <Routes>
-                <Route path="*" element={<CurrentRoute />} />
-                <Route path={routes.home} element={<CurrentRoute />} />
-                <Route path={routes.monitoring} element={<CurrentRoute />} />
-                <Route path={routes.states} element={<CurrentRoute />} />
+                {routesJsx}
             </Routes>
             <Box>
-                <CustomTabs />
+                <CustomTabs isAdmin={token?.IsAdmin ?? false}/>
             </Box>
         </Router>
     )
