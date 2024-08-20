@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text;
 using System.Collections;
+using Duende.IdentityServer.Extensions;
 
 namespace AspNetCoreGroup.UserFunctionality.IdentityServer;
 
@@ -115,6 +116,7 @@ public class AuthorizationController : Controller
                     claims
                     );
 
+                userDTO.IsSignedIn = true;
                 await _signInManager.SignInAsync(userDTO, true);
                 await SetTokenCookieAsync(claims, userDTO);
                 
@@ -144,9 +146,10 @@ public class AuthorizationController : Controller
 
             var claims = await _userManager.GetClaimsAsync(dto);
             await SetTokenCookieAsync(claims, dto);
-            
             if (res.Succeeded)
             {
+                dto.IsSignedIn = true;
+                await _userManager.UpdateAsync(dto);
                 return Ok(dto);
             }
             else
@@ -164,21 +167,23 @@ public class AuthorizationController : Controller
     /// <param name="email">User to face logout</param>
     /// <returns></returns>
     [HttpPatch("/api/users/Logout")]
-    public async Task<IActionResult> LogoutAsync([DataType(DataType.EmailAddress), Required, FromQuery] string? email)
+    public async Task<IActionResult> LogoutAsync()
     {
-        var user = _userManager.Users.FirstOrDefault(u => u.Email.Equals(email));
         Response.Cookies.Delete("token");
+        var claimsPrincipal = _signInManager.Context.User;
+        var user = await _signInManager.UserManager.GetUserAsync(claimsPrincipal);
 
         if (user == null)
         {
             return BadRequest();
         }
-        else
-        {
-            await _signInManager.SignOutAsync();
 
-            return Ok();
-        }
+        user.IsSignedIn = false;
+        await _userManager.UpdateAsync(user);
+
+        await _signInManager.SignOutAsync();
+        
+        return Ok(user);
     }
 
     /// <summary>
@@ -242,7 +247,7 @@ public class AuthorizationController : Controller
     {
         var dto = _mapper.Map<UserDTO>(model);
 
-        return Ok(await _signInManager.CanSignInAsync(dto));
+        return Ok((await _signInManager.CanSignInAsync(dto) && !dto.IsSignedIn));
     }
 
     /// <summary>
@@ -291,6 +296,25 @@ public class AuthorizationController : Controller
 
 
         return Ok();
+    }
+
+    [HttpGet("api/users/IsSignedIn/{userName}")]
+    public async Task<IActionResult> CheckUserIsSignedInAsync([FromRoute]string userName)
+    {
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName.Equals(userName));
+
+        if (user == null)
+        {
+            return BadRequest(user);
+        }
+
+        return Ok(new 
+        { 
+            Username = user.UserName,
+            Email = user.Email,
+            Telegramm = user.Telegramm,
+            IsSignedIn = user.IsSignedIn
+        });
     }
 
     /// <summary>

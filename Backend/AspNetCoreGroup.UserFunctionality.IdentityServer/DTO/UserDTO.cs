@@ -6,4 +6,6 @@ public class UserDTO : IdentityUser
 {
     public string? Telegramm { get; set; }
     public bool IsAdmin { get; set; }
+    public bool IsSignedIn { get; set; }
+
 }
