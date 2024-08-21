@@ -51,6 +51,7 @@ builder.Services.AddSameSiteCookiePolicy();
 
 builder.Services
     .AddIdentity<UserDTO, IdentityRole>()
+    .AddTokenProvider("IS4", typeof(DataProtectorTokenProvider<UserDTO>))
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 

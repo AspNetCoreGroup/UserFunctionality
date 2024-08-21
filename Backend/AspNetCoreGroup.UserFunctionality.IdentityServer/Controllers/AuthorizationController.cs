@@ -5,19 +5,24 @@ using AspNetCoreGroup.UserFunctionality.IdentityServer.Models;
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text;
-using System.Collections;
-using Duende.IdentityServer.Extensions;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authentication;
 
 namespace AspNetCoreGroup.UserFunctionality.IdentityServer;
 
 public class AuthorizationController : Controller
 {
+    public static class TokenProps
+    {
+        public static string LoginProvider = "IS4";
+        public static string TokenName = "token";
+        public static string TokenProvider = "IS4";
+        public static string Purpose = "IS4";
+    }
+
     private readonly UserManager<UserDTO> _userManager;
     private readonly SignInManager<UserDTO> _signInManager;
     private readonly AppDbContext _dbContext;
@@ -69,10 +74,24 @@ public class AuthorizationController : Controller
     /// <param name="userDTO">User DTO</param>
     private async Task SetTokenCookieAsync(IEnumerable<Claim> claims, UserDTO userDTO)
     {
-        var token = Token(claims);
-        await _userManager.SetAuthenticationTokenAsync(userDTO, "IS4", userDTO.Email + "_token", token);
+        var token = await _userManager.GenerateUserTokenAsync(userDTO, TokenProps.TokenProvider, TokenProps.Purpose);//Token(claims);
+        var tokenJwt = Token(claims);
+
+        await _userManager.SetAuthenticationTokenAsync(userDTO, TokenProps.LoginProvider, userDTO.Email + "_token", token);
+        
         Response.Cookies.Append(
             "token",
+            tokenJwt,
+            new CookieOptions
+            {
+                HttpOnly = false,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.Now.AddYears(1),
+                Secure = true,
+                IsEssential = true
+            });
+        Response.Cookies.Append(
+            ".AspNetCore.Token",
             token,
             new CookieOptions
             {
@@ -108,8 +127,9 @@ public class AuthorizationController : Controller
                 var adminClaim = new Claim("IsAdmin", "true");
                 var tgClaim = new Claim("TG", model.Telegramm);
                 var emailClaim = new Claim("Email", model.Email);
+                var userIdClaim = new Claim("UserID", userDTO.Id);
 
-                var claims = new[] { adminClaim, tgClaim, emailClaim };
+                var claims = new[] { adminClaim, tgClaim, emailClaim, userIdClaim };
 
                 await _userManager.AddClaimsAsync(
                     userDTO,
@@ -298,22 +318,30 @@ public class AuthorizationController : Controller
         return Ok();
     }
 
-    [HttpGet("api/users/IsSignedIn/{userName}")]
-    public async Task<IActionResult> CheckUserIsSignedInAsync([FromRoute]string userName)
+    [HttpGet("api/users/CheckToken")]
+    public async Task<IActionResult> CheckUserTokenAsync([FromQuery, Required]string token)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName.Equals(userName));
+        var userToken = await _dbContext.UserTokens.FirstOrDefaultAsync(t => t.Value.Equals(System.Web.HttpUtility.UrlDecode(token)));
+
+        if (userToken == null)
+        {
+            return BadRequest(new { Message = "Invalid token"} );
+        }
+
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(userToken.UserId));
 
         if (user == null)
         {
-            return BadRequest(user);
+            return BadRequest(new { Message = "User not found" });
         }
+
 
         return Ok(new 
         { 
             Username = user.UserName,
             Email = user.Email,
             Telegramm = user.Telegramm,
-            IsSignedIn = user.IsSignedIn
+            UserID = user.Id
         });
     }
 
