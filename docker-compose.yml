@@ -14,8 +14,6 @@ services:
     build: ./frontend
     container_name: frontend
     environment:
-      - REACT_APP_IDENTITY_SERVER_URI=localhost:3333
-      - BACKEND_SERVER_URI=localhost:1234
     ports:
       - 5001:3000
   
