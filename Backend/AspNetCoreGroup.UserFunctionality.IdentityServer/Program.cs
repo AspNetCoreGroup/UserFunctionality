@@ -5,6 +5,7 @@ using Duende.IdentityServer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -17,7 +18,13 @@ builder.Services.AddControllers();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", b =>
+    {
+        b.WithOrigins(builder.Configuration.GetValue<string>("IdentityServer:ClientUri"));
+    });
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -29,14 +36,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "http://localhost:5111";
+        options.Authority = "http://localhost:80";
         options.RequireHttpsMetadata = false;
         options.Audience = "authorization";
     })
     .AddOpenIdConnect(options =>
     {
         options.ClientId = "react";
-        options.Authority = "http://localhost:5111";
+        options.Authority = "http://localhost:80";
         options.RequireHttpsMetadata = false;
     });
 
@@ -76,16 +83,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseDeveloperExceptionPage();
-app.UseHttpsRedirection();
 
-app.UseCors(options =>
-{
-    options.WithOrigins(builder.Configuration.GetValue<string>("IdentityServer:ClientUri"))
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowCredentials()
-    ;
-});
+
+app.UseCors("CorsPolicy");
 
 app.UseIdentityServer();
 app.UseAuthentication();

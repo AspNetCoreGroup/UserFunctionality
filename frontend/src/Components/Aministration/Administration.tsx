@@ -42,9 +42,7 @@ const Administration = () => {
             NetworkID: network.NetworkID
         };
 
-        const backendServerUri = `${process.env.REACT_APP_BACKEND_SERVER_URI}`;
-
-        fetch(`${backendServerUri}/backend/networks/${network.NetworkID}/devices`,{
+        fetch(`/backend/networks/${network.NetworkID}/devices`,{
             method: 'POST',
             cache: 'no-cache',
             headers: {

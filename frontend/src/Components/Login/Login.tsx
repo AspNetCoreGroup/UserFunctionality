@@ -10,8 +10,6 @@ import { loginFormActions } from "../../Redux/loginForm/loginFormActions";
 const Login = () => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const identityServerUri = `${process.env.REACT_APP_IDENTITY_SERVER_URI}`;
-
     const handleClickOpen = (): void => {
         setIsOpen(true);
     }
@@ -36,9 +34,10 @@ const Login = () => {
         const formJson = Object.fromEntries((formData as any).entries());
         const body: LoginModel = Object.create(formJson);
         
-        fetch(`${identityServerUri}/api/users/Login`,{
+        fetch(`/api/users/Login`,{
             method: 'PATCH',
             cache: 'no-cache',
+            mode: 'no-cors',
             headers: {
                 "Content-Type": "application/json",
             },
@@ -51,7 +50,7 @@ const Login = () => {
             handleClose()
         })
         .catch((e) => console.log())
-        .finally(() => window.location.reload());
+        //.finally(() => window.location.reload());
     }
 
     const handleRegisterForm = () => {

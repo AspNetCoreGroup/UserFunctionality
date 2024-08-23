@@ -20,9 +20,7 @@ const Logout = (props: LogoutType) => {
     const dispatch = useAppDispatch();
 
     const handleLogout = (email: String | undefined) => {
-        const identityServerUri = `${process.env.REACT_APP_IDENTITY_SERVER_URI}`;
-
-        fetch(`${identityServerUri}/api/users/Logout?email=${email}`,{
+        fetch(`/api/users/Logout?email=${email}`,{
             method: 'PATCH',
             cache: 'no-cache',
             headers: {

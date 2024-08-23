@@ -1,7 +1,5 @@
 function updateNetworks<T>(hook: React.Dispatch<React.SetStateAction<T>>) {
-    const backendServerUri = `${process.env.REACT_APP_BACKEND_SERVER_URI}`;
-
-    fetch(`${backendServerUri}/backend/networks`,{
+    fetch(`/backend/networks`,{
         method: 'GET',
         cache: 'no-cache',
         headers: {

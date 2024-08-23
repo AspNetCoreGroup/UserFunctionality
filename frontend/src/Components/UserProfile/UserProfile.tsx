@@ -8,8 +8,6 @@ import UpdateClaimsModel from "../../Models/UpdateClaimsModel";
 
 const UserProfile = () => {
     const principal = useDecodedToken();
-
-    const identityServerUri = `${process.env.REACT_APP_IDENTITY_SERVER_URI}`;
     
     const [isOpen, setIsOpen] = useState(false);
 
@@ -30,7 +28,7 @@ const UserProfile = () => {
         body.Email = principal?.Email;
         body.Telegramm = body.Telegramm === '' ? principal?.TG : body.Telegramm; 
         
-        fetch(`${identityServerUri}/api/users/Claims/Update`,{
+        fetch(`/api/users/Claims/Update`,{
             method: 'PATCH',
             cache: 'no-cache',
             headers: {

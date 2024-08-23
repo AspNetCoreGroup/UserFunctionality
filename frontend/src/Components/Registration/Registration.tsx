@@ -35,8 +35,6 @@ const Registration = (props: RegistrationProps) => {
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-        const identityServerUri = `${process.env.REACT_APP_IDENTITY_SERVER_URI}`;
-
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
@@ -49,7 +47,7 @@ const Registration = (props: RegistrationProps) => {
             isAdmin: formJson.isadmin == 'On'
         };
 
-        fetch(`${identityServerUri}/api/users/Register`,{
+        fetch(`/api/users/Register`,{
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -64,7 +62,7 @@ const Registration = (props: RegistrationProps) => {
             handleClose()
         })
         .catch((e) => console.log())
-        .finally(() => window.location.reload());
+        //.finally(() => window.location.reload());
     }
 
     return (
