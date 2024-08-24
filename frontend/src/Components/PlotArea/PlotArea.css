@@ -6,6 +6,9 @@
 .select__holder{
     width: 30%;
     padding-left: 3%;
+    display: grid;
+    grid-template-columns: repeat(4, 60%);
+    grid-gap: 5%;
 }
 
 .plot__holder{

@@ -1,0 +1,11 @@
+.administration__wrapper {
+    display: grid;
+    grid-template-rows: 1fr 6fr;
+}
+
+.form {
+    display: grid;
+    grid-template-rows: repeat(4, 7%);
+    align-items: center;
+    justify-items: center;
+}

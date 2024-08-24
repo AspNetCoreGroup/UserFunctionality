@@ -1,0 +1,25 @@
+version: '1.0.0'
+
+services:
+  identity_server:
+    container_name: identity_server
+    build: ./Backend/AspNetCoreGroup.UserFunctionality.IdentityServer
+    ports:
+      - 5000:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    environment:
+    ports:
+      - 5001:3000
+  
+  proxy:
+    image: nginx:latest
+    volumes:
+      - ./nginx/:/etc/nginx/
+    ports:
+      - 80:80

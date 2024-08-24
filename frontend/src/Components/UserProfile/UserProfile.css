@@ -1,0 +1,19 @@
+.user-profile{
+    color: #9c27b0;
+    max-height: 20px;
+}
+
+.text-field {
+    color: #9c27b0;
+}
+
+.text-label {
+    margin-right: 20px;
+    padding-right: 20px;
+    align-self: center;
+}
+
+.is-admin {
+    font-weight: bold;
+    justify-self: center;
+}
