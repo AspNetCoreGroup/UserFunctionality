@@ -9,6 +9,8 @@ services:
       - ASPNETCORE_URLS=http://+:80
     volumes:
       - ./Backend/AspNetCoreGroup.UserFunctionality.IdentityServer:/src/app
+    networks:
+      - net
 
   backend:
     container_name: backend
@@ -16,16 +18,21 @@ services:
     ports:
       - 5002:80
     depends_on:
-      - rabbitmq  
+      - rabbitmq 
+      - backend-db 
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+    networks:
+      - net
 
   frontend:
     build: ./frontend
     container_name: frontend
     ports:
       - 5001:3000
+    networks:
+      - net
   
   proxy:
     image: nginx:latest
@@ -33,6 +40,8 @@ services:
       - ./nginx/:/etc/nginx/
     ports:
       - 80:80
+    networks:
+      - net
 
   backend-db:
     image: postgres:alpine
@@ -53,6 +62,8 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    networks:
+      - net
 
   rabbitmq:
     image: rabbitmq:3.10.7-management
@@ -63,6 +74,7 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
+      - RABBITMQ_DEFAULT_VHOST=OtusProjectHost
     ports:
       - 15672:15672
       - 15691:15691
@@ -71,3 +83,8 @@ services:
       - 4369:4369
       - 5671:5671
       - 5672:5672
+    networks:
+      - net
+
+networks:
+  net:
