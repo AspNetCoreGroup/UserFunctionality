@@ -65,8 +65,8 @@ public class AuthorizationController : Controller
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("/api/users/{id}")]
-    public async Task<IActionResult> GetByIdAsync(string id)
+    [HttpGet("/api/users/{id:int}")]
+    public async Task<IActionResult> GetByIdAsync(int id)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
 
@@ -136,7 +136,7 @@ public class AuthorizationController : Controller
                 var adminClaim = new Claim("IsAdmin", "true");
                 var tgClaim = new Claim("TG", model.Telegramm);
                 var emailClaim = new Claim("Email", model.Email);
-                var userIdClaim = new Claim("UserID", userDTO.Id);
+                var userIdClaim = new Claim("UserID", userDTO.Id.ToString());
 
                 var claims = new[] { adminClaim, tgClaim, emailClaim, userIdClaim };
 
@@ -420,8 +420,8 @@ public class AuthorizationController : Controller
     {
         return new EventUserDto()
         {
-            UserID = -1,
-            UserLogin = user.Id, // Простейшее решение. Следует рассмотереть изменение модели.
+            UserID = user.Id,
+            UserLogin = user.Email.Split("@").FirstOrDefault() ?? "",
             FirstName = user.UserName ?? "",
             LastName = "",
             Email = user.Email,

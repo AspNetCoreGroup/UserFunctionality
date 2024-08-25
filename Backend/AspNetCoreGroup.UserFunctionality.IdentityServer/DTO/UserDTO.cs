@@ -2,7 +2,7 @@
 
 namespace AspNetCoreGroup.UserFunctionality.IdentityServer;
 
-public class UserDTO : IdentityUser
+public class UserDTO : IdentityUser<int>
 {
     public string? Telegramm { get; set; }
     public bool IsAdmin { get; set; }
