@@ -12,19 +12,30 @@ public class BackendContext : DbContext
     public DbSet<NetworkDevice> NetworkDevices { get; set; }
     public DbSet<NetworkRule> NetworkRules { get; set; }
 
+    private ILogger Logger { get; set; }
     private IConfiguration Configuration { get; set; }
 
-    public BackendContext(IConfiguration configuration)
+    public BackendContext(ILoggerFactory loggerFactory, IConfiguration configuration)
     {
+        Logger = loggerFactory.CreateLogger<BackendContext>();
         Configuration = configuration;
+
+        Logger.LogDebug("Подключение к базе.");
+
         Database.EnsureCreated();
+
+        Logger.LogDebug("Подключение к базе прошло успешно.");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        Logger.LogDebug("Конфигурация подключения к базе.");
+
         var connectionString = Configuration["ConnectionString"];
 
         optionsBuilder.UseNpgsql(connectionString);
         optionsBuilder.LogTo(Console.WriteLine);
+
+        Logger.LogDebug("Конфигурация подключения к базе прошла успешно.");
     }
 }

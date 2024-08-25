@@ -1,15 +1,16 @@
-﻿using BackendCommonLibrary.Interfaces.Services;
-using BackendService.DataSources;
+﻿using BackendCommonLibrary.Interfaces.BackgroundServices;
+using BackendCommonLibrary.Interfaces.Services;
 using BackendService.BackgroundServices;
+using BackendService.DataSources;
 using BackendService.Middlewares;
 using BackendService.Services;
-using DefaultRealisationLibrary.Services;
 using CommonLibrary.Interfaces.Listeners;
 using CommonLibrary.Interfaces.Senders;
 using CommonLibrary.Interfaces.Services;
+using DefaultRealisationLibrary.Factories;
+using DefaultRealisationLibrary.Services;
 using RabbitLibrary.Listeners;
 using RabbitLibrary.Senders;
-using DefaultRealisationLibrary.Factories;
 // TODO: Заменить на встроенный вариант
 using IHttpClientFactory = CommonLibrary.Interfaces.Factories.IHttpClientFactory;
 
@@ -35,8 +36,10 @@ builder.Services.AddScoped<IMessageSender, RabbitSender>();
 builder.Services.AddScoped<IMessageListenerFactory, RabbitListenerFactory>();
 builder.Services.AddScoped<IRequestsService, HttpRequestService>();
 builder.Services.AddScoped<IHttpClientFactory, HttpClientFactory>();
+builder.Services.AddScoped<IDataEventsService, DataEventsService>();
 
-builder.Services.AddSingleton<IAuthorizationService, SimpleAuthorizationService>();
+builder.Services.AddSingleton<IHttpClientFactory, HttpClientFactory>();
+builder.Services.AddScoped<IAuthorizationService, HTTPAuthorizationService>();
 
 builder.Services.AddHostedService<DataEventsBackgroundService>();
 

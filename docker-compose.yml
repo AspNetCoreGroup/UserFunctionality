@@ -15,6 +15,8 @@ services:
     build: ./Backend
     ports:
       - 5002:80
+    depends_on:
+      - rabbitmq  
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -54,6 +56,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.10.7-management
+    container_name: rabbitmq
     hostname: rabbitmq
     restart: always
     environment:
@@ -62,4 +65,9 @@ services:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
     ports:
       - 15672:15672
+      - 15691:15691
+      - 15692:15692
+      - 2567:2567
+      - 4369:4369
+      - 5671:5671
       - 5672:5672

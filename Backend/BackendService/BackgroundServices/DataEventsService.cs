@@ -28,20 +28,22 @@ namespace BackendService.BackgroundServices
             UsersService = usersService;
             DevicesService = devicesService;
             MessageListenerFactory = messageListenerFactory;
-            Logger = loggerFactory.CreateLogger<DataEventsBackgroundService>();
+            Logger = loggerFactory.CreateLogger<DataEventsService>();
         }
 
         public async Task WorkAsync(CancellationToken stoppingToken)
         {
             try
             {
-                Logger.LogInformation("Сервис запущен.");
+                Logger.LogInformation("Запуск сервиса");
 
                 using var listener = MessageListenerFactory.CreateListener("AuthorizationBackend");
 
                 listener.AddHandler(ProcessMessage);
 
                 listener.Open();
+
+                Logger.LogInformation("Сервис запущен");
 
                 while (!stoppingToken.IsCancellationRequested)
                 {

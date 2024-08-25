@@ -1,5 +1,6 @@
 ﻿using CommonLibrary.Extensions;
 using BackendCommonLibrary.Interfaces.Services;
+using IHttpClientFactory = CommonLibrary.Interfaces.Factories.IHttpClientFactory;
 
 namespace BackendService.Services
 {
@@ -18,7 +19,7 @@ namespace BackendService.Services
 
         public async Task<int> GetAuthorisedUserIDAsync(string token)
         {
-            var httpClient = HttpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.GetHttpClient();
 
             var section = Configuration.GetSection("AuthorizationService") ?? throw new NullReferenceException("В конфиге не указано значение для AuthorizationService");
             var requestURL = section["RequestURL"] ?? throw new NullReferenceException("В конфиге не указано значение для AuthorizationService/RequestURL");
