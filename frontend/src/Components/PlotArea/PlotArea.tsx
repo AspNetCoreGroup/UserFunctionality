@@ -5,7 +5,7 @@ import { plotTypeActions } from "../../Redux/plotType/plotTypeActions";
 import { plotTypes } from "../../Redux/plotType/plotTypeConstants";
 import CustomPlot from "../CustomPlot/CustomPlot";
 import { PlotTypeState } from "../../Redux/plotType/plotTypeReducer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NetworkDto from "../../Models/NetworkDto";
 import updateNetworks from "../../common/updateNetworks";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -93,7 +93,15 @@ const PlotArea = () => {
         });
     }
 
-    updateNetworks(setNetworks);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            updateNetworks(setNetworks);
+        }, 5000);
+
+        return () => {
+            clearInterval(interval);
+        }
+    }, []);
 
     return (
         <div className="wrapper">

@@ -1,5 +1,5 @@
 function updateDevices<T>(hook: React.Dispatch<React.SetStateAction<T>>, netId: number) {
-    fetch(`/backend/networks/${netId}/devices`,{
+    fetch(`/Networks/${netId}/Devices`,{
         method: 'GET',
         cache: 'no-cache',
         headers: {

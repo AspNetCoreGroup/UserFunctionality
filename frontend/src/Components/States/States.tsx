@@ -1,6 +1,6 @@
 import { Autocomplete, InputLabel, makeStyles, Paper, TextField } from "@mui/material";
 import NetworkDto from "../../Models/NetworkDto";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { defaultSx } from "../PlotArea/PlotArea";
 import updateNetworks from "../../common/updateNetworks";
 import "./States.css";
@@ -28,22 +28,24 @@ const States = () => {
 
     const [network, setNetwork] = useState<NetworkDto>(networks[0]);
 
-    const [devices, setDevices] = useState<DeviceDto[]>([
-        {
-            DeviceID: 1,
-            DeviceCode: "12345",
-            DeviceCustomTitle: "Test Device 1"
-        },
-        {
-            DeviceID: 2,
-            DeviceCode: "54321",
-            DeviceCustomTitle: "Test Device 2"
+    const [devices, setDevices] = useState<DeviceDto[]>([]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            updateNetworks<NetworkDto[]>(setNetworks);
+            updateDevices<DeviceDto[]>(setDevices, network.NetworkID);
+        }, 5000);
+
+        return () => {
+            clearInterval(interval);
         }
-    ]);
+    }, []);
 
-    updateNetworks<NetworkDto[]>(setNetworks);
-    updateDevices<DeviceDto[]>(setDevices, network.NetworkID);
-
+    useEffect(() => {
+        updateNetworks<NetworkDto[]>(setNetworks);
+        updateDevices<DeviceDto[]>(setDevices, network.NetworkID);
+    }, [network])
+    
     return (
         <div className="state__wrapper">
             <Autocomplete

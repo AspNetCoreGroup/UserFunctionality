@@ -1,11 +1,12 @@
 import { Autocomplete, Button, Link, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NetworkDto from "../../Models/NetworkDto";
 import { defaultSx } from "../PlotArea/PlotArea";
 import React from "react";
 import DeviceDto from "../../Models/DeviceDto";
 import NetworkDeviceDto from "../../Models/NetworkDeviceDto";
 import './Administration.css';
+import updateNetworks from "../../common/updateNetworks";
 
 const Administration = () => {
     const [networks, setNetworks] = useState<NetworkDto[]>([
@@ -22,6 +23,16 @@ const Administration = () => {
             NetworkTitle: "Network 3"
         },
     ]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            updateNetworks(setNetworks);
+        }, 5000);
+
+        return () => {
+            clearInterval(interval);
+        }
+    }, []);
 
     const [network, setNetwork] = useState<NetworkDto>(networks[0]);
 
@@ -42,7 +53,7 @@ const Administration = () => {
             NetworkID: network.NetworkID
         };
 
-        fetch(`/backend/networks/${network.NetworkID}/devices`,{
+        fetch(`/Networks/${network.NetworkID}/devices`,{
             method: 'POST',
             cache: 'no-cache',
             headers: {

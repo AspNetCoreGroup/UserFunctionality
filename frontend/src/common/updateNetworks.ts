@@ -1,5 +1,5 @@
 function updateNetworks<T>(hook: React.Dispatch<React.SetStateAction<T>>) {
-    fetch(`/backend/networks`,{
+    fetch(`/Networks`,{
         method: 'GET',
         cache: 'no-cache',
         headers: {
