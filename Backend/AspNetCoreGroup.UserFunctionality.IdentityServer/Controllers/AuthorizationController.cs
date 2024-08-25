@@ -1,15 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AspNetCoreGroup.UserFunctionality.IdentityServer.Models;
+using AutoMapper;
+using CommonLibrary.Extensions;
+using CommonLibrary.Interfaces.Senders;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AspNetCoreGroup.UserFunctionality.IdentityServer.Models;
-using AutoMapper;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using ModelLibrary.Messages;
+using ModelLibrary.Model.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Authentication;
+using EventUserDto = ModelLibrary.Model.UserDto;
 
 namespace AspNetCoreGroup.UserFunctionality.IdentityServer;
 
@@ -26,19 +29,25 @@ public class AuthorizationController : Controller
     private readonly UserManager<UserDTO> _userManager;
     private readonly SignInManager<UserDTO> _signInManager;
     private readonly AppDbContext _dbContext;
+    private readonly IMessageSender _messageSender;
     private readonly IMapper _mapper;
+    private readonly ILogger _logger;
 
     public AuthorizationController(
         UserManager<UserDTO> userManager,
         SignInManager<UserDTO> signInManager,
         AppDbContext dbContext,
-        IMapper mapper
+        IMapper mapper,
+        IMessageSender messageSender,
+        ILoggerFactory loggerFactory
         )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _dbContext = dbContext;
+        _messageSender = messageSender;
         _mapper = mapper;
+        _logger = loggerFactory.CreateLogger<AuthorizationController>();
     }
 
     /// <summary>
@@ -140,6 +149,8 @@ public class AuthorizationController : Controller
                 await _signInManager.SignInAsync(userDTO, true);
                 await SetTokenCookieAsync(claims, userDTO);
                 
+                await NotifyDataEventAsync(userDTO, DataEventOperationType.Add);
+
                 return Created();
             }
             else
@@ -170,6 +181,9 @@ public class AuthorizationController : Controller
             {
                 dto.IsSignedIn = true;
                 await _userManager.UpdateAsync(dto);
+
+                await NotifyDataEventAsync(dto, DataEventOperationType.Update);
+
                 return Ok(dto);
             }
             else
@@ -203,6 +217,8 @@ public class AuthorizationController : Controller
 
         await _signInManager.SignOutAsync();
         
+        await NotifyDataEventAsync(user, DataEventOperationType.Update);
+
         return Ok(user);
     }
 
@@ -222,6 +238,8 @@ public class AuthorizationController : Controller
         }
 
         var res = await _userManager.DeleteAsync(user);
+
+        await NotifyDataEventAsync(user, DataEventOperationType.Delete);
 
         if (res.Succeeded)
         {
@@ -245,6 +263,8 @@ public class AuthorizationController : Controller
         {
             var res = await _userManager.DeleteAsync(user);
             isSuccess &= res?.Succeeded;
+
+            await NotifyDataEventAsync(user, DataEventOperationType.Delete);
         }
 
         if (isSuccess.Value)
@@ -373,5 +393,40 @@ public class AuthorizationController : Controller
                 SecurityAlgorithms.HmacSha256)
             );
         return new JwtSecurityTokenHandler().WriteToken(jwt);
+    }
+
+
+    private async Task NotifyDataEventAsync(UserDTO user, DataEventOperationType operationType)
+    {
+        try
+        {
+            var dataEvent = new DataEventMessage<EventUserDto>()
+            {
+                Operation = operationType,
+                Data = Convert(user)
+            };
+
+            await _messageSender.SendMessageAsync("AuthServiceAll", dataEvent);
+
+            _logger.LogInformation("DataEventMessage sended.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Error on user event notification. Data may be lost.");
+        }
+    }
+
+    private EventUserDto Convert(UserDTO user)
+    {
+        return new EventUserDto()
+        {
+            UserID = -1,
+            UserLogin = user.Id, // Простейшее решение. Следует рассмотереть изменение модели.
+            FirstName = user.UserName ?? "",
+            LastName = "",
+            Email = user.Email,
+            NotificationEmail = user.Email,
+            NotificationTelegramID = user.Telegramm,
+        };
     }
 }

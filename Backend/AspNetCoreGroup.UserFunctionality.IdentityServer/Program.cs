@@ -1,6 +1,7 @@
 using System.Text;
 using AspNetCoreGroup.UserFunctionality.IdentityServer;
 using AspNetCoreGroup.UserFunctionality.IdentityServer.Mapping;
+using CommonLibrary.Interfaces.Senders;
 using Duende.IdentityServer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RabbitLibrary.Senders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +74,8 @@ builder.Services
 
 builder.Services.AddAutoMapper(typeof(RegisterProfile));
 builder.Services.AddAutoMapper(typeof(LoginProfile));
+
+builder.Services.AddScoped<IMessageSender, RabbitSender>();
 
 var app = builder.Build();
 

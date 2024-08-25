@@ -1,3 +1,4 @@
 *.DS_Store
 /Backend/BackendService/packages
 /pg-data
+Backend/AspNetCoreGroup.UserFunctionality.IdentityServer/packages/*

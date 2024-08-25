@@ -9,6 +9,12 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
+    <Compile Remove="packages\**" />
+    <Content Remove="packages\**" />
+    <EmbeddedResource Remove="packages\**" />
+    <None Remove="packages\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="7.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.20" />
@@ -29,5 +35,19 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>packages\CommonLibrary\net8.0\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="DefaultRealisationLibrary">
+      <HintPath>packages\CommonLibrary\net8.0\DefaultRealisationLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="ModelLibrary">
+      <HintPath>packages\CommonLibrary\net8.0\ModelLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitLibrary">
+      <HintPath>packages\CommonLibrary\net8.0\RabbitLibrary.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
