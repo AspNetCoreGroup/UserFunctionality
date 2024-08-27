@@ -37,6 +37,7 @@ builder.Services.AddScoped<IMessageListenerFactory, RabbitListenerFactory>();
 builder.Services.AddScoped<IRequestsService, HttpRequestService>();
 builder.Services.AddScoped<IHttpClientFactory, HttpClientFactory>();
 builder.Services.AddScoped<IDataEventsService, DataEventsService>();
+builder.Services.AddScoped<IDataStorageService, DataStorageService>();
 
 builder.Services.AddSingleton<IHttpClientFactory, HttpClientFactory>();
 //builder.Services.AddScoped<IAuthorizationService, HTTPAuthorizationService>();

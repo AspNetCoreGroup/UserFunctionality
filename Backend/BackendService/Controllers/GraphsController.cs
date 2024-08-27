@@ -1,5 +1,4 @@
 ﻿using BackendCommonLibrary.Interfaces.Services;
-using BackendService.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -19,9 +18,20 @@ public class GraphsController : ControllerBase
     }
 
     [HttpGet("Graph")]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetAsync(int? networkID, int? deviceID, DateTime? minDateTime, DateTime? maxDateTime)
     {
-        var result = await GraphsService.GetGraph(null);
+        if (networkID == null && deviceID == null)
+        {
+            return BadRequest("Необходимо указать NetworkID или DeviceID");
+        }
+
+        var result = await GraphsService.GetGraph(new ModelLibrary.Requests.GraphRequestWrapper()
+        {
+            NetworkID = networkID,
+            DeviceID = deviceID,
+            MaxDateTime = maxDateTime ?? DateTime.Now.AddMonths(1),
+            MinDateTime = minDateTime ?? DateTime.Now.AddMonths(-1)
+        });
 
         return Ok(result);
     }

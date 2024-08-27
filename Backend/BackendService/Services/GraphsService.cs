@@ -1,4 +1,5 @@
 ﻿using BackendCommonLibrary.Interfaces.Services;
+using CommonLibrary.Extensions;
 using CommonLibrary.Interfaces.Services;
 using ModelLibrary.Requests;
 using ModelLibrary.Responses;
@@ -13,19 +14,40 @@ namespace BackendService.Services
 
         private IConfiguration Configuration { get; }
 
-        private IRequestsService RequestsService { get; }
+        private IDataStorageService DataStorageService { get; }
 
+        private INetworkDevicesService NetworkDevicesService { get; }
 
-        public GraphsService(ILoggerFactory loggerFactory, IConfiguration configuration, IRequestsService requestsService)
+        public GraphsService(ILoggerFactory loggerFactory, IConfiguration configuration, IDataStorageService dataStorageService, INetworkDevicesService networkDevicesService)
         {
             Logger = loggerFactory.CreateLogger<GraphsService>();
             Configuration = configuration;
-            RequestsService = requestsService;
+            DataStorageService = dataStorageService;
+            NetworkDevicesService = networkDevicesService;
         }
 
         public async Task<GraphResponseWrapper> GetGraph(GraphRequestWrapper request)
         {
-            await Task.CompletedTask;
+            var requestingDevices = await GetTargetDevicesAsync(request);
+
+            var measurementsResponses = await requestingDevices
+                .Select(async deviceID =>
+                {
+                    var dataRequest = new GetMeasurementsRequest()
+                    {
+                        DeviceID = deviceID,
+                        MaxDate = request.MaxDateTime,
+                        MinDate = request.MinDateTime
+                    };
+
+                    return await DataStorageService.GetMeasurementsAsync(dataRequest);
+                })
+                .WaitAllAsync()
+                .ToListAsync();
+
+            var measurements = measurementsResponses
+                .SelectMany(response => response.Measurements)
+                .ToList();
 
             var layout = Layout.init<IConvertible>
             (
@@ -50,10 +72,10 @@ namespace BackendService.Services
             );
 
             var chart = Chart2D.Chart
-                .Column<int, int, int, IConvertible, IConvertible>
+                .Column<double, DateTime, int, IConvertible, IConvertible>
                 (
-                    Keys: new[] { 1, 2, 3, 4, 5, 6 },
-                    values: new[] { 1, 3, 2, 12, 3, 4 }
+                    Keys: measurements.Select(x => x.DateTime).ToArray(),
+                    values: measurements.Select(x => x.Value ?? -1).ToArray()
                 )
                 .WithXAxis(xAxis)
                 .WithYAxis(yAxis)
@@ -65,6 +87,28 @@ namespace BackendService.Services
             {
                 GraphHTML = resultHTML
             };
+        }
+
+        private async Task<IEnumerable<int>> GetTargetDevicesAsync(GraphRequestWrapper request)
+        {
+            if (request.NetworkID == null && request.DeviceID == null)
+            {
+                throw new Exception("Необходимо указать NetworkID или DeviceID");
+            }
+
+            if (request.DeviceID != null)
+            {
+                var deviceID = request.DeviceID!.Value;
+
+                return await Task.FromResult(new int[] { deviceID });
+            }
+            else
+            {
+                var networkID = request.DeviceID!.Value;
+                var networkDevices = await NetworkDevicesService.GetNetworkDevicesAsync(networkID);
+
+                return networkDevices.Select(x => x.DeviceID);
+            }
         }
 
         private static string GetPlotlyHtml(GenericChart chart)
