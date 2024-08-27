@@ -32,16 +32,19 @@ const Login = () => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
-        const body: LoginModel = Object.create(formJson);
+        const body: LoginModel = {
+            email: formJson.email,
+            password: formJson.password,
+            rememberMe: formJson.rememberMe == 'On'
+        };
         
         fetch(`/api/users/Login`,{
             method: 'PATCH',
             cache: 'no-cache',
-            mode: 'no-cors',
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(formJson),
+            body: JSON.stringify(body),
             credentials: 'include'
         })
         .then(response => response.json())
@@ -50,7 +53,7 @@ const Login = () => {
             handleClose()
         })
         .catch((e) => console.log())
-        //.finally(() => window.location.reload());
+        .finally(() => window.location.reload());
     }
 
     const handleRegisterForm = () => {

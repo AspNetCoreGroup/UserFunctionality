@@ -62,7 +62,7 @@ const Registration = (props: RegistrationProps) => {
             handleClose()
         })
         .catch((e) => console.log())
-        //.finally(() => window.location.reload());
+        .finally(() => window.location.reload());
     }
 
     return (
