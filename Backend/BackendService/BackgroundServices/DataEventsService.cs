@@ -5,6 +5,7 @@ using CommonLibrary.Extensions;
 using CommonLibrary.Interfaces.Listeners;
 using ModelLibrary.Messages;
 using ModelLibrary.Model;
+using ModelLibrary.Events;
 using ModelLibrary.Model.Enums;
 
 namespace BackendService.BackgroundServices
@@ -37,7 +38,7 @@ namespace BackendService.BackgroundServices
             {
                 Logger.LogInformation("Запуск сервиса");
 
-                using var listener = MessageListenerFactory.CreateListener("AuthorizationBackend");
+                using var listener = MessageListenerFactory.CreateListener("DataEventsBackend");
 
                 listener.AddHandler(ProcessMessage);
 
@@ -64,11 +65,15 @@ namespace BackendService.BackgroundServices
             }
         }
 
-        private void ProcessMessage(string queueName, string message, Dictionary<string, string> param)
+        private void ProcessMessage(MessageRecievedEventArgs args)
         {
+            var message = args.Message;
+            var queueName = args.QueueName;
+            var param = args.Param;
+
             try
             {
-                Logger.LogInformation("Получено сообщение \"{queueName}\"  - \"{message}\".", queueName, message);
+                Logger.LogInformation("Получено сообщение \"{queueName}\" - \"{message}\".", queueName, message);
 
                 var contentType = param["ContentType"];
 
@@ -89,11 +94,15 @@ namespace BackendService.BackgroundServices
                     ProcessDeviceMessage(dataEvent).Wait();
                 }
 
-                Logger.LogInformation("Обработано сообщение \"{queueName}\"  - \"{message}\".", queueName, message);
+                args.Hadled = true;
+
+                Logger.LogInformation("Обработано сообщение \"{queueName}\" - \"{message}\".", queueName, message);
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "Ошибка при обработке сообщения \"{queueName}\"  - \"{message}\".", queueName, message);
+                args.Rejected = true;
+
+                Logger.LogError(e, "Ошибка при обработке сообщения \"{queueName}\" - \"{message}\".", queueName, message);
             }
         }
 

@@ -7,6 +7,7 @@ namespace BackendService.Model.Entities
     public class Device
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int DeviceID { get; set; }
 
         public required string DeviceCode { get; set; }

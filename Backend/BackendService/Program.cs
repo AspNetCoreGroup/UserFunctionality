@@ -39,7 +39,8 @@ builder.Services.AddScoped<IHttpClientFactory, HttpClientFactory>();
 builder.Services.AddScoped<IDataEventsService, DataEventsService>();
 
 builder.Services.AddSingleton<IHttpClientFactory, HttpClientFactory>();
-builder.Services.AddScoped<IAuthorizationService, HTTPAuthorizationService>();
+//builder.Services.AddScoped<IAuthorizationService, HTTPAuthorizationService>();
+builder.Services.AddScoped<IAuthorizationService, SimpleAuthorizationService>();
 
 builder.Services.AddHostedService<DataEventsBackgroundService>();
 

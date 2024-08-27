@@ -7,6 +7,7 @@ namespace BackendService.Model.Entities
     public class User
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int UserID { get; set; }
 
         public required string UserLogin { get; set; }

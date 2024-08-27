@@ -47,7 +47,7 @@ services:
     image: postgres:alpine
     container_name: backend_db
     ports:
-      - 5432:5432
+      - 5452:5432
     environment:
       POSTGRES_DB: "ProjectBackendService"
       POSTGRES_USER: "postgres"

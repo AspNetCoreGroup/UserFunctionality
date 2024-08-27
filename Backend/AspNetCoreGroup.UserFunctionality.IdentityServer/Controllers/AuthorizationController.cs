@@ -120,6 +120,8 @@ public class AuthorizationController : Controller
     [HttpPost("/api/users/Register")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
     {
+        _logger.LogInformation("Регистрация пользователя с Email: {email} и Password: {password}", model.Email, model.Password);
+
         if (ModelState.IsValid)
         {
             if (string.IsNullOrEmpty(model.Email))
@@ -151,14 +153,17 @@ public class AuthorizationController : Controller
                 
                 await NotifyDataEventAsync(userDTO, DataEventOperationType.Add);
 
+                _logger.LogInformation("Успешная регистрации пользователя с Email: {email} и Password: {password}", model.Email, model.Password);
                 return Created();
             }
             else
             {
+                _logger.LogInformation("Ошибка регистрации пользователя с Email: {email} и Password: {password}", model.Email, model.Password);
                 return BadRequest(model);
             }
         }
         
+        _logger.LogInformation("Регистрация невозможна");
         return BadRequest(model);
     }
 
@@ -170,6 +175,8 @@ public class AuthorizationController : Controller
     [HttpPatch("/api/users/Login")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
     {
+        _logger.LogInformation("Авторизация пользователя с Email: {email} и Password: {password}", model.Email, model.Password);
+
         if (ModelState.IsValid)
         {
             var dto = await _userManager.Users.FirstOrDefaultAsync(u => u.Email.Equals(model.Email));
@@ -177,21 +184,23 @@ public class AuthorizationController : Controller
 
             var claims = await _userManager.GetClaimsAsync(dto);
             await SetTokenCookieAsync(claims, dto);
+
             if (res.Succeeded)
             {
                 dto.IsSignedIn = true;
                 await _userManager.UpdateAsync(dto);
 
-                await NotifyDataEventAsync(dto, DataEventOperationType.Update);
-
+                _logger.LogInformation("Успешная авторизация пользователя с Email: {email} и Password: {password}", model.Email, model.Password);
                 return Ok(dto);
             }
             else
             {
+                _logger.LogInformation("Ошибка авторизации пользователя с Email: {email} и Password: {password}", model.Email, model.Password);
                 return BadRequest(dto);
             }
         }
         
+        _logger.LogInformation("Авторизация невозможна");
         return BadRequest(model);
     }
 
@@ -217,8 +226,6 @@ public class AuthorizationController : Controller
 
         await _signInManager.SignOutAsync();
         
-        await NotifyDataEventAsync(user, DataEventOperationType.Update);
-
         return Ok(user);
     }
 
