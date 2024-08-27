@@ -9,8 +9,10 @@ import updateDevices from "../../common/updateDevices";
 import CustomTable from "../DevicesTable/DevicesTable";
 import DevicesTable from "../DevicesTable/DevicesTable";
 import DeviceDto from "../../Models/DeviceDto";
+import { useDecodedToken } from "../App/App";
 
 const States = () => {
+    const principal = useDecodedToken();
     const [networks, setNetworks] = useState<NetworkDto[]>([
         {
             NetworkID: 1,
@@ -32,8 +34,8 @@ const States = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks<NetworkDto[]>(setNetworks);
-            updateDevices<DeviceDto[]>(setDevices, network.NetworkID);
+            updateNetworks<NetworkDto[]>(setNetworks, principal?.ID);
+            updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.ID);
         }, 5000);
 
         return () => {
@@ -42,8 +44,8 @@ const States = () => {
     }, []);
 
     useEffect(() => {
-        updateNetworks<NetworkDto[]>(setNetworks);
-        updateDevices<DeviceDto[]>(setDevices, network.NetworkID);
+        updateNetworks<NetworkDto[]>(setNetworks, principal?.ID);
+        updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.ID);
     }, [network])
     
     return (
@@ -52,7 +54,7 @@ const States = () => {
                 disablePortal
                 onChange={(e, v, r, d) => {
                     setNetwork(networks.find(n => n.NetworkTitle === v) ?? networks[0]);
-                    updateDevices<DeviceDto[]>(setDevices, network.NetworkID);
+                    updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.ID);
                 }}
                 
                 className="networks"

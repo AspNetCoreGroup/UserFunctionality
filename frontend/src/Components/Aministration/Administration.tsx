@@ -7,8 +7,10 @@ import DeviceDto from "../../Models/DeviceDto";
 import NetworkDeviceDto from "../../Models/NetworkDeviceDto";
 import './Administration.css';
 import updateNetworks from "../../common/updateNetworks";
+import { useDecodedToken } from "../App/App";
 
 const Administration = () => {
+    const principal = useDecodedToken();
     const [networks, setNetworks] = useState<NetworkDto[]>([
         {
             NetworkID: 1,
@@ -26,7 +28,7 @@ const Administration = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks(setNetworks);
+            updateNetworks(setNetworks, principal?.ID);
         }, 5000);
 
         return () => {

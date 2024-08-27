@@ -20,6 +20,7 @@ import { DateFromState } from "../../Redux/dateFrom/dateFromReducer";
 import { DateToState } from "../../Redux/dateTo/dateToReducer";
 import { NetworkState } from "../../Redux/network/networkReducer";
 import dayjs from "dayjs";
+import { useDecodedToken } from "../App/App";
 
 
 const textColor = process.env.REACT_APP_SELECT_PLOT_SWITCH_COLOR === undefined
@@ -44,6 +45,7 @@ export const defaultSx = {
 
 const PlotArea = () => {
     const dispatch = useAppDispatch();
+    const principal = useDecodedToken();
     let plotTypeState: PlotTypeState = useAppSelector(state => state.plotType);
     let dateFromState: DateFromState = useAppSelector(state => state.dateFrom);
     let dateToState: DateToState = useAppSelector(state => state.dateTo);
@@ -95,7 +97,7 @@ const PlotArea = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks(setNetworks);
+            updateNetworks(setNetworks, principal?.ID);
         }, 5000);
 
         return () => {

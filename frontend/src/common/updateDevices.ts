@@ -1,5 +1,5 @@
-function updateDevices<T>(hook: React.Dispatch<React.SetStateAction<T>>, netId: number) {
-    fetch(`/Networks/${netId}/Devices`,{
+function updateDevices<T>(hook: React.Dispatch<React.SetStateAction<T>>, netId: number, userId: number | undefined) {
+    fetch(`/Networks/${netId}/Devices?requestingUserID=${userId}`,{
         method: 'GET',
         cache: 'no-cache',
         headers: {

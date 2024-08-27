@@ -47,11 +47,6 @@ const authors = [
         href: "https://t.me/yuriiwanchev"
     },
     {
-        name: "Сергей Тихомиров",
-        src: tikhomirovS,
-        href: "https://t.me/sltikhomirov"
-    },
-    {
         name: "Антон Герасименко",
         src: gerasimenkoA,
         href: "https://t.me/aa_gerasimenko"
