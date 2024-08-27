@@ -7,6 +7,7 @@ using ModelLibrary.Messages;
 using ModelLibrary.Model;
 using ModelLibrary.Events;
 using ModelLibrary.Model.Enums;
+using BackendService.Model;
 
 namespace BackendService.BackgroundServices
 {
@@ -77,10 +78,10 @@ namespace BackendService.BackgroundServices
 
                 var contentType = param["ContentType"];
 
-                if (!contentType.StartsWith("DataEventMessage"))
-                {
-                    throw new Exception("В очереди изменений разрешается использовать только сообщения с типом DataEventMessage");
-                }
+                //if (!contentType.StartsWith("DataEventMessage"))
+                //{
+                //    throw new Exception("В очереди изменений разрешается использовать только сообщения с типом DataEventMessage");
+                //}
 
                 if (contentType == "DataEventMessage<UserDto>")
                 {
@@ -88,9 +89,9 @@ namespace BackendService.BackgroundServices
                     ProcessUserMessage(dataEvent).Wait();
                 }
 
-                if (contentType == "DataEventMessage<DeviceDto>")
+                if (contentType == "DeviceMessage")
                 {
-                    var dataEvent = DeserializeMessage<DataEventMessage<DeviceDto>>(message);
+                    var dataEvent = DeserializeMessage<DeviceMessage>(message);
                     ProcessDeviceMessage(dataEvent).Wait();
                 }
 
@@ -127,20 +128,16 @@ namespace BackendService.BackgroundServices
             }
         }
 
-        private async Task ProcessDeviceMessage(DataEventMessage<DeviceDto> deviceDataEvent)
+        private async Task ProcessDeviceMessage(DeviceMessage deviceMessage)
         {
-            if (deviceDataEvent.Operation == DataEventOperationType.Add)
+            var device = new DeviceDto()
             {
-                await DevicesService.CreateDeviceAsync(deviceDataEvent.Data!);
-            }
-            else if (deviceDataEvent.Operation == DataEventOperationType.Update)
-            {
-                await DevicesService.UpdateDeviceAsync(deviceDataEvent.Data!.DeviceID, deviceDataEvent.Data!);
-            }
-            else if (deviceDataEvent.Operation == DataEventOperationType.Delete)
-            {
-                await DevicesService.DeleteDeviceAsync(deviceDataEvent.Data!.DeviceID);
-            }
+                DeviceID = deviceMessage.DeviceId,
+                DeviceCode = deviceMessage.SerialNumber,
+                DeviceCustomTitle = deviceMessage.DeviceType
+            };
+
+            await DevicesService.CreateDeviceAsync(device);
         }
     }
 }
