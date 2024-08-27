@@ -2,7 +2,7 @@ interface Principal {
     Email: string,
     TG: string,
     IsAdmin: boolean,
-    ID: number
+    UserID: string
 }
 
 export default Principal;

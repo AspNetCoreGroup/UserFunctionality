@@ -34,8 +34,8 @@ const States = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks<NetworkDto[]>(setNetworks, principal?.ID);
-            updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.ID);
+            updateNetworks<NetworkDto[]>(setNetworks, principal?.UserID);
+            updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.UserID);
         }, 5000);
 
         return () => {
@@ -44,8 +44,8 @@ const States = () => {
     }, []);
 
     useEffect(() => {
-        updateNetworks<NetworkDto[]>(setNetworks, principal?.ID);
-        updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.ID);
+        updateNetworks<NetworkDto[]>(setNetworks, principal?.UserID);
+        updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.UserID);
     }, [network])
     
     return (
@@ -54,7 +54,7 @@ const States = () => {
                 disablePortal
                 onChange={(e, v, r, d) => {
                     setNetwork(networks.find(n => n.NetworkTitle === v) ?? networks[0]);
-                    updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.ID);
+                    updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.UserID);
                 }}
                 
                 className="networks"

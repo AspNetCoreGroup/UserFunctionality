@@ -28,7 +28,7 @@ const Administration = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks(setNetworks, principal?.ID);
+            updateNetworks(setNetworks, principal?.UserID);
         }, 5000);
 
         return () => {
@@ -55,7 +55,7 @@ const Administration = () => {
             NetworkID: network.NetworkID
         };
 
-        fetch(`/Networks/${network.NetworkID}/devices`,{
+        fetch(`/Networks/${network.NetworkID}/devices?requestingUserID=${principal?.UserID}`,{
             method: 'POST',
             cache: 'no-cache',
             headers: {

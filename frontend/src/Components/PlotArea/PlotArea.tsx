@@ -94,10 +94,9 @@ const PlotArea = () => {
             payload: network
         });
     }
-
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks(setNetworks, principal?.ID);
+            updateNetworks(setNetworks, principal?.UserID);
         }, 5000);
 
         return () => {
