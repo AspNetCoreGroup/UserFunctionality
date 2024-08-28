@@ -1,4 +1,4 @@
 export default interface NetworkDto {
-    NetworkID: number;
-    NetworkTitle: string
+    networkID: number;
+    networkTitle: string
 }

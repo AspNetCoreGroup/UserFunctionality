@@ -1,4 +1,4 @@
-function updateNetworks<T>(hook: React.Dispatch<React.SetStateAction<T>>, userId: string | undefined) {
+function updateNetworks<T>(hook: React.Dispatch<React.SetStateAction<T>>, userId: String) {
     fetch(`/Networks?requestingUserID=${userId}`,{
         method: 'GET',
         cache: 'no-cache',

@@ -23,14 +23,14 @@ const DevicesTable = (props: TableProps) => {
                     <TableBody>
                     {props.rows.map((row) => (
                         <TableRow
-                        key={row.DeviceID}
+                        key={row.deviceID}
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
                         <TableCell component="th" scope="row" align="center" >
-                            {row.DeviceID}
+                            {row.deviceID}
                         </TableCell>
-                        <TableCell align="center">{row.DeviceCustomTitle}</TableCell>
-                        <TableCell align="center">{row.DeviceCode}</TableCell>
+                        <TableCell align="center">{row.deviceCustomTitle}</TableCell>
+                        <TableCell align="center">{row.deviceCode}</TableCell>
                         </TableRow>
                     ))}
                     </TableBody>

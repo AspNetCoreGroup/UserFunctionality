@@ -45,7 +45,7 @@ export const defaultSx = {
 
 const PlotArea = () => {
     const dispatch = useAppDispatch();
-    const principal = useDecodedToken();
+    const principal = useDecodedToken() ?? {Email: "test@test.test", IsAdmin: true, TG: "test", UserID: '12'};
     let plotTypeState: PlotTypeState = useAppSelector(state => state.plotType);
     let dateFromState: DateFromState = useAppSelector(state => state.dateFrom);
     let dateToState: DateToState = useAppSelector(state => state.dateTo);
@@ -54,16 +54,16 @@ const PlotArea = () => {
     const [networks, setNetworks] = useState<NetworkDto[]>(
         [
             {
-                NetworkID: 1,
-                NetworkTitle: "Network"
+                networkID: 1,
+                networkTitle: "network"
             },
             {
-                NetworkID: 2,
-                NetworkTitle: "Net"
+                networkID: 2,
+                networkTitle: "net"
             },
             {
-                NetworkID: 3,
-                NetworkTitle: "Specific"
+                networkID: 3,
+                networkTitle: "Specific"
             },
         ]
     );
@@ -96,13 +96,17 @@ const PlotArea = () => {
     }
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks(setNetworks, principal?.UserID);
+            updateNetworks(setNetworks, principal.UserID);
         }, 5000);
 
         return () => {
             clearInterval(interval);
         }
-    }, []);
+    }, [principal.UserID]);
+
+    useEffect(() => {
+        updateNetworks<NetworkDto[]>(setNetworks, principal.UserID);
+    }, [networks, principal.UserID])
 
     return (
         <div className="wrapper">
@@ -131,7 +135,7 @@ const PlotArea = () => {
                         value={networkState.network}
                         className="network"
                         id="network"
-                        options={networks.map(x => x.NetworkTitle)}
+                        options={networks.map(x => x.networkTitle)}
                         style={{color: defaultSx.color}}
                         onChange={(event, value) => { changeNetwork(value ?? "None") }}
                         renderInput={(params) => <TextField {...params} 

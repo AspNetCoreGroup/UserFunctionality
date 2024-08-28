@@ -12,19 +12,19 @@ import DeviceDto from "../../Models/DeviceDto";
 import { useDecodedToken } from "../App/App";
 
 const States = () => {
-    const principal = useDecodedToken();
+    const principal = useDecodedToken() ?? {Email: "test@test.test", IsAdmin: true, TG: "test", UserID: '12'};
     const [networks, setNetworks] = useState<NetworkDto[]>([
         {
-            NetworkID: 1,
-            NetworkTitle: "Network 1"
+            networkID: 1,
+            networkTitle: "network 1"
         },
         {
-            NetworkID: 2,
-            NetworkTitle: "Network 2"
+            networkID: 2,
+            networkTitle: "network 2"
         },
         {
-            NetworkID: 3,
-            NetworkTitle: "Network 3"
+            networkID: 3,
+            networkTitle: "network 3"
         },
     ]);
 
@@ -34,32 +34,30 @@ const States = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks<NetworkDto[]>(setNetworks, principal?.UserID);
-            updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.UserID);
+            updateNetworks<NetworkDto[]>(setNetworks, principal.UserID);
         }, 5000);
 
         return () => {
             clearInterval(interval);
         }
-    }, []);
+    }, [principal.UserID]);
 
     useEffect(() => {
-        updateNetworks<NetworkDto[]>(setNetworks, principal?.UserID);
-        updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.UserID);
-    }, [network])
-    
+        updateNetworks<NetworkDto[]>(setNetworks, principal.UserID);
+    }, [network, principal.UserID])
+    console.log(networks);
     return (
         <div className="state__wrapper">
             <Autocomplete
                 disablePortal
                 onChange={(e, v, r, d) => {
-                    setNetwork(networks.find(n => n.NetworkTitle === v) ?? networks[0]);
-                    updateDevices<DeviceDto[]>(setDevices, network.NetworkID, principal?.UserID);
+                    setNetwork(networks.find(n => n.networkTitle === v) ?? networks[0]);
+                    updateDevices<DeviceDto[]>(setDevices, network.networkID, principal?.UserID);
                 }}
                 
                 className="networks"
                 id="networks"
-                options={networks.map(x => x.NetworkTitle)}
+                options={networks.map(x => x.networkTitle)}
                 style={{color: defaultSx.color, borderColor: "#53B9EA", }}
                 renderInput={(params) => <TextField {...params} 
                                     label="Сеть" 

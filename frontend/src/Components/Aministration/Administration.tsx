@@ -10,33 +10,37 @@ import updateNetworks from "../../common/updateNetworks";
 import { useDecodedToken } from "../App/App";
 
 const Administration = () => {
-    const principal = useDecodedToken();
+    const principal = useDecodedToken() ?? {Email: "test@test.test", IsAdmin: true, TG: "test", UserID: '12'};
     const [networks, setNetworks] = useState<NetworkDto[]>([
         {
-            NetworkID: 1,
-            NetworkTitle: "Network 1"
+            networkID: 1,
+            networkTitle: "Network 1"
         },
         {
-            NetworkID: 2,
-            NetworkTitle: "Network 2"
+            networkID: 2,
+            networkTitle: "Network 2"
         },
         {
-            NetworkID: 3,
-            NetworkTitle: "Network 3"
+            networkID: 3,
+            networkTitle: "Network 3"
         },
     ]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            updateNetworks(setNetworks, principal?.UserID);
+            updateNetworks(setNetworks, principal.UserID);
         }, 5000);
 
         return () => {
             clearInterval(interval);
         }
-    }, []);
+    }, [principal.UserID]);
 
     const [network, setNetwork] = useState<NetworkDto>(networks[0]);
+
+    useEffect(() => {
+        updateNetworks<NetworkDto[]>(setNetworks, principal.UserID);
+    }, [network, principal.UserID])
 
     const [id, setId] = useState<number>(0);
     const [code, setCode] = useState<number>(0);
@@ -50,12 +54,12 @@ const Administration = () => {
         const networkDevice: NetworkDeviceDto = {
             DeviceDto: device,
             NetworkDto: network,
-            DeviceID: device.DeviceID,
+            DeviceID: device.deviceID,
             NetworkDeviceID: Math.floor(Math.random() * 1e16),
-            NetworkID: network.NetworkID
+            NetworkID: network.networkID
         };
 
-        fetch(`/Networks/${network.NetworkID}/devices?requestingUserID=${principal?.UserID}`,{
+        fetch(`/Networks/${network.networkID}/devices?requestingUserID=${principal?.UserID}`,{
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -94,12 +98,12 @@ const Administration = () => {
             <Autocomplete
                 disablePortal
                 onChange={(e, v, r, d) => {
-                    setNetwork(networks.find(n => n.NetworkTitle === v) ?? networks[0]);
+                    setNetwork(networks.find(n => n.networkTitle === v) ?? networks[0]);
                 }}
                 
                 className="networks"
                 id="networks"
-                options={networks.map(x => x.NetworkTitle)}
+                options={networks.map(x => x.networkTitle)}
                 style={{color: defaultSx.color, borderColor: "#53B9EA", }}
                 renderInput={(params) => <TextField {...params} 
                                     label="Сеть" 
